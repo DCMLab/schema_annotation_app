@@ -1,0 +1,97 @@
+#app {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1024px;
+}
+
+/* Note selection and highlight styling */
+
+.note:hover {
+    /* fill: #1f77b4; */
+    transform: translate3d(0,0,0);
+    filter: url("#glowFilter");
+}
+
+/* colorscheme: category10 from D3 */
+
+.vrv-highlighted-0 {
+    fill: #ff7f0e;
+}
+
+.vrv-highlighted-1 {
+    fill: #2ca02c;
+}
+
+.vrv-highlighted-2 {
+    fill: #d62728;
+}
+
+.vrv-highlighted-3 {
+    fill: #9467bd;
+}
+
+.vrv-highlighted-4 {
+    fill: #8c564b;
+}
+
+.vrv-highlighted-5 {
+    fill: #e377c2;
+}
+
+.vrv-highlighted-6 {
+    fill: #7f7f7f;
+}
+
+.vrv-highlighted-7 {
+    fill: #bcbd22;
+}
+
+.vrv-highlighted-8 {
+    fill: #17becf;
+}
+
+.vrv-selected {
+    fill: #1f77b4;
+}
+
+/* Alternative Color Scheme
+ * colorbrewer 9-class Set1
+ * colorbrewer2.org
+ */
+
+/* .vrv-highlighted-0 { */
+/*     fill: #377eb8; */
+/* } */
+
+/* .vrv-highlighted-1 { */
+/*     fill: #4daf4a; */
+/* } */
+
+/* .vrv-highlighted-2 { */
+/*     fill: #984ea3; */
+/* } */
+
+/* .vrv-highlighted-3 { */
+/*     fill: #ff7f00; */
+/* } */
+
+/* .vrv-highlighted-4 { */
+/*     fill: #ffff33; */
+/* } */
+
+/* .vrv-highlighted-5 { */
+/*     fill: #a65628; */
+/* } */
+
+/* .vrv-highlighted-6 { */
+/*     fill: #f781bf; */
+/* } */
+
+/* .vrv-highlighted-7 { */
+/*     fill: #999999; */
+/* } */
+
+
+/* .vrv-selected { */
+/*     fill: #e41a1c; */
+/* } */
