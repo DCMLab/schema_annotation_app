@@ -1,68 +1,26 @@
 (ns schema-annotation.verovio
   (:require [reagent.core :as r]
-            [clojure.string :as str]))
+            [reagent.ratom :as ratom]
+            [clojure.string :as str]
+            [schema-annotation.helpers :as h]))
 
-(def xml-test "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
-<!DOCTYPE score-partwise PUBLIC
-    \"-//Recordare//DTD MusicXML 3.1 Partwise//EN\"
-    \"http://www.musicxml.org/dtds/partwise.dtd\">
-<score-partwise version=\"3.1\">
-  <part-list>
-    <score-part id=\"P1\">
-      <part-name>Music</part-name>
-    </score-part>
-  </part-list>
-  <part id=\"P1\">
-    <measure number=\"1\">
-      <attributes>
-        <divisions>1</divisions>
-        <key>
-          <fifths>0</fifths>
-        </key>
-        <time>
-          <beats>4</beats>
-          <beat-type>4</beat-type>
-        </time>
-        <clef>
-          <sign>G</sign>
-          <line>2</line>
-        </clef>
-      </attributes>
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>4</duration>
-        <type>whole</type>
-      </note>
-    </measure>
-  </part>
-</score-partwise>")
+
 
 (def verovio-controls
   {:page 1
-   :selected #{}
    :highlighted []
-   :data nil
    :allow-select true})
 
-(defn next-page [controls pages]
-  (update controls :page #(min (inc %) pages)))
+(defn next-page [page pages]
+  (min (inc page) pages))
 
-(defn prev-page [controls pages]
-  (update controls :page #(max (dec %) 1)))
-
-(defn load-from-file! [controls file]
-  (let [reader (new js/FileReader)]
-    (set! (.-onload reader)
-          (fn [e]
-            (swap! controls assoc :data (.. e -target -result))))
-    (.readAsText reader file)))
+(defn prev-page [page pages]
+  (max (dec page) 1))
 
 (def verovio-options
   {:scale 50
    :pageWidth 2048
+   :pageHeight 1500
    :adjustPageHeight true
    :header "none"
    :footer "none"
@@ -85,9 +43,9 @@
     (disj sel elt)
     (conj sel elt)))
 
-(defn add-select-handlers! [dom-node controls]
+(defn add-select-handlers! [dom-node selected]
   (letfn [(toggle-select! [id]
-            (swap! controls update :selected toggle-in-selection id))]
+            (swap! selected toggle-in-selection id))]
     (let [notes (.. js/d3 (select dom-node) (select "svg") (selectAll ".note"))]
       (. notes on "click" (fn [] (this-as this
                                    (toggle-select! (.-id this))))))))
@@ -106,38 +64,44 @@
         (when (not= nil note)
           (.. note -classList (add class)))))))
 
-(defn verovio-inner [controls pages in-opts]
+(defn verovio-comp [data controls selected pages in-opts]
   (let [options (conj verovio-options in-opts)
         tk (create-tk! options)
         ;; cursors for control elements
-        data (r/cursor controls [:data])
         page (r/cursor controls [:page])
-        pgs (reagent.ratom/run! (reset! pages (load-data tk @data)))
-        svg (reagent.ratom/run! @data (page-svg tk @page))]
+        allow-select (r/cursor controls [:allow-select])
+        data-atom (r/atom data)
+        pgs (reagent.ratom/run!
+             (reset! pages (load-data tk @data-atom)))
+        svg (reagent.ratom/run! @pages (page-svg tk @page))]
+    
+    (load-data tk data)
     (r/create-class
      {:reagent-render
-      (fn []
-        (let [c @controls] ;; ensures update on every change of controls
-          [:div {:dangerouslySetInnerHTML {:__html @svg}}]))
-      
-      :component-did-mount
-      (fn [comp]
-        (swap! controls assoc :page 1))
+      (fn [data controls selected pages in-opts]
+        (reset! data-atom data)
+        (let [c @controls
+              s @selected] ;; ensures update on every change of controls or selected
+          [:div {:class (str "verovio-cmp" (when @allow-select " allow-select"))
+                 :dangerouslySetInnerHTML {:__html @svg}}]))
       
       :component-did-update
       (fn [comp]
         (let [comp-dom (r/dom-node comp)]
           (reset-note-classes! comp-dom)
           (when (:allow-select @controls)
-            (add-select-handlers! comp-dom controls)
-            (add-class-to-notes! comp-dom (:selected @controls) "vrv-selected"))
+            (add-select-handlers! comp-dom selected)
+            (add-class-to-notes! comp-dom @selected "vrv-selected"))
           (doseq [[i group] (map-indexed vector (:highlighted @controls))]
+            ;; TODO: make color modulo an option
             (add-class-to-notes! comp-dom group (str "vrv-highlighted-" (mod i 9))))))
       
       :display-name "verovio-inner"})))
 
-(defn verovio-example []
-  (let [controls (r/atom (assoc verovio-controls :data xml-test))
+(defn verovio-example-comp []
+  (let [controls (r/atom (assoc verovio-controls :data h/xml-test))
+        data (r/cursor controls [:data])
+        selected (r/atom #{})
         pages (r/atom 0)
         options {}]
     (fn []
@@ -146,11 +110,11 @@
         [:div.pure-u-1-4
          [:a.pure-button
           {:disabled (<= (:page @controls) 1)
-           :on-click #(swap! controls prev-page @pages)} "<<"]
+           :on-click #(swap! controls update :page prev-page @pages)} "<<"]
          " " (:page @controls) " / " @pages " "
          [:a.pure-button
           {:disabled (>= (:page @controls) @pages)
-           :on-click #(swap! controls next-page @pages)} ">>"]]
+           :on-click #(swap! controls update :page next-page @pages)} ">>"]]
         [:div.pure-u-1-2
          [:input.pure-u-23-24
           {:type "text"
@@ -169,15 +133,16 @@
            :multiple false
            :on-change (fn [ev]
                         (let [files (.. ev -target -files)]
-                          (load-from-file! controls (aget files 0))))}]]
+                          (h/load-from-file! data (aget files 0))
+                          (swap! selected empty)))}]]
         
         
         [:div.pure-u-3-4
-         "Selection:" (clj->js (:selected @controls))]
+         "Selection:" (clj->js @selected)]
         [:a.pure-button.pure-u-1-4
-         {:disabled (empty? (:selected @controls))
-          :on-click #(swap! controls update :selected empty)}
+         {:disabled (empty? @selected)
+          :on-click #(swap! selected empty)}
          "Clear Selection"]
         
         ]
-       [verovio-inner controls pages options]])))
+       [verovio-comp controls selected pages options]])))

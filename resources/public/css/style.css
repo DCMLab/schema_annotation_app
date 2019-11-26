@@ -4,53 +4,144 @@
     max-width: 1024px;
 }
 
+/* General visual stuff */
+
+.row {
+    padding: 0.5em 1em;
+}
+
+.link {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.selected-link {
+    color: #1f77b4;
+}
+
+.button-danger {
+    background: #d62728;
+    color: #fff;
+}
+
+.button-small {
+    font-size: 85%;
+}
+
+.manual-instance {
+    padding: 0.5em 0;
+}
+
+.manual-instance-selected {
+    background-color: #e6e6e6;
+}
+
 /* Note selection and highlight styling */
 
-.note:hover {
+.verovio-cmp.allow-select .note:hover {
     /* fill: #1f77b4; */
     transform: translate3d(0,0,0);
     filter: url("#glowFilter");
 }
 
+/* .verovio-cmp.loading { */
+/*     height: 100vh;   */
+/*     position: relative; */
+    
+/* } */
+
+.verovio-cmp.loading {
+    position: relative;
+    min-height: 40px;
+}
+
+.verovio-cmp.loading::before {
+    border: solid 3px #eee;
+    border-bottom-color: #EF6565;
+    border-radius: 50%;
+    content: "";
+    height: 40px;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    width: 40px;
+}
+
+.verovio-cmp.loading:after {
+  content: " ";
+  z-index: 10;
+  display: block;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
 /* colorscheme: category10 from D3 */
 
+.vrv-highlighted-0,
+.vrv-highlighted-1,
+.vrv-highlighted-2,
+.vrv-highlighted-3,
+.vrv-highlighted-4,
+.vrv-highlighted-5,
+.vrv-highlighted-6,
+.vrv-highlighted-7,
+.vrv-highlighted-8,
+.vrv-selected {
+    color: #fff;
+}
+
 .vrv-highlighted-0 {
+    background-color: #ff7f0e;
     fill: #ff7f0e;
 }
 
 .vrv-highlighted-1 {
+    background-color: #2ca02c;
     fill: #2ca02c;
 }
 
 .vrv-highlighted-2 {
+    background-color: #d62728;
     fill: #d62728;
 }
 
 .vrv-highlighted-3 {
+    background-color: #9467bd;
     fill: #9467bd;
 }
 
 .vrv-highlighted-4 {
+    background-color: #8c564b;
     fill: #8c564b;
 }
 
 .vrv-highlighted-5 {
+    background-color: #e377c2;
     fill: #e377c2;
 }
 
 .vrv-highlighted-6 {
+    background-color: #7f7f7f;
     fill: #7f7f7f;
 }
 
 .vrv-highlighted-7 {
+    background-color: #bcbd22;
     fill: #bcbd22;
 }
 
 .vrv-highlighted-8 {
+    background-color: #17becf;
     fill: #17becf;
 }
 
 .vrv-selected {
+    background-color: #1f77b4;
     fill: #1f77b4;
 }
 
