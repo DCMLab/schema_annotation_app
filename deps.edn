@@ -7,15 +7,24 @@
  :paths ["src"]
  
  :aliases
- {:prod
-  {:main-opts ["-m cljs.main -co prod.cljs.edn -c schema-annotation.core"]}
-
+ {;; production build
+  :prod
+  {:main-opts ["-m cljs.main"
+               "-co prod.cljs.edn"
+               "-c schema-annotation.core"]}
+  
+  ;; production build using figwheel-main to compile
+  :prod-fig
+  {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}
+   :main-opts ["-m figwheel.main -bo prod"]}
+  
+  ;; development with CIDER (repl started by CIDER)
   :cider
   {:extra-paths ["resources" "target"]
-   :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}
-   }
+   :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}}
   
+  ;; development with figwheel-main repl (from command line)
   :fig
   {:extra-paths ["resources" "target"]
-   ;;:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}
+   :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}
    :main-opts ["-m figwheel.main -b dev -r"]}}}
