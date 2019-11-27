@@ -28,12 +28,21 @@
     font-size: 85%;
 }
 
-.manual-instance {
+.manual .manual-instance {
+    padding: 0.5em 0;
+    margin-left: 0.5em;
+}
+
+.manual .manual-instance .instance-name {
     padding: 0.5em 0;
 }
 
-.manual-instance-selected {
+.manual .manual-instance-selected {
     background-color: #e6e6e6;
+}
+
+.manual .validation-error {
+    color: #d62728;
 }
 
 /* Note selection and highlight styling */

@@ -1,7 +1,8 @@
 (ns schema-annotation.manual
   (:require [reagent.core :as r]
             [reagent.ratom :as ratom]
-            [schema-annotation.verovio :as vrv]))
+            [schema-annotation.verovio :as vrv]
+            [reagent-keybindings.keyboard :as kb]))
 
 (defn make-current-stage [active-stage stages]
   (r/cursor
@@ -64,27 +65,29 @@
                 (let [sel-class (if (= i as)
                                   "vrv-selected pure-button-active"
                                   (str " vrv-highlighted-" (mod i 9)))
-                      enabled-class (if (nil? @current-instance) " pure-button-disabled" "")]
+                      enabled-class (if (nil? @current-instance) " pure-button-disabled" "")
+                      click (fn []
+                              (if (= i @active-stage) (unset-stage!) (set-stage! i)))]
                   [:a.pure-button
                    {:key i
                     :class (str sel-class " " enabled-class)
-                       :on-click #(if (= i as)
-                                    (unset-stage!)
-                                    (set-stage! i))}
+                    :on-click click}
+                   [kb/kb-action (str (inc i)) click]
                    (inc i)])))]]
            [:form.pure-form.pure-u-1.pure-u-md-1-4
-            {:on-submit (fn [] false)}
             ;; TODO: (de)activate page buttons based on page / number of pages
             [:legend "Page"]
             [:div
              [:a.pure-button
               {:disabled (<= (:page @controls) 1)
                :on-click #(swap! page vrv/prev-page @pages)}
+              [kb/kb-action "left" #(swap! page vrv/prev-page @pages)]
               "<<"]
              " " @page " / " @pages " "
              [:a.pure-button
               {:disabled (>= (:page @controls) @pages)
                :on-click #(swap! page vrv/next-page @pages)}
+              [kb/kb-action "right" #(swap! page vrv/next-page @pages)]
               ">>"]]]
            [:div.pure-u-1
             [vrv/verovio-comp piece-xml controls selected pages options]]])))))
@@ -106,6 +109,9 @@
                    ins
                    (assoc ins ai value)))))))
    []))
+
+(defn validate-instance [pattern instance]
+  "bla")
 
 (defn manual-annotation-comp [pattern piece-xml instances]
   ;; local state /variables
@@ -129,15 +135,17 @@
       ;; render function
       (fn [pattern piece-xml instances]
         (let [ai @active-instance]
-          [:div
+          [:div.manual
            [:h2 "Manual Annotations"]
-           [manual-annotation-inner pattern piece-xml current-instance]
+           
            ;; [:p (str @current-instance)]
            ;; [:p (str @active-instance)]
            ;; [:p (str @instances)]
-           [:form.pure-form
-            [:legend "Instances"]
-            [:a.pure-button.pure-button-primary
+           
+           [:form.pure-form.pure-g
+            [:div.pure-u-1.pure-u-sm-4-5
+             [:legend "Instances"]]
+            [:a.pure-button.pure-button-primary.pure-u-1.pure-u-sm-1-5
              {:on-click #(add-instance!)}
              "New Instance"]]
            [:ol
@@ -146,19 +154,25 @@
                [:li
                 {:key i
                  :class (if (= i ai) "manual-instance-selected" "")}
-                [:div.pure-g
-                 [:div.pure-u-1.pure-u-md-3-4.manual-instance
-                  [:div
-                   (str "Instance " (inc i))]]
+                [:div.pure-g.manual-instance
+                 [:div.pure-u-1.pure-u-md-3-4
+                  [:div.instance-name
+                   (str "Instance " (inc i))
+                   " "
+                   [:span.validation-error
+                    (str "(" (validate-instance pattern ins) ")")]]]
                  [:div.pure-u-1.pure-u-md-1-4;;.pure-g
                   [:div.pure-u-1-2
                    [:a.pure-button.pure-u-23-24
                     {:on-click #(toggle-instance! i)
-                     :href "javascript:void()"
                      :class (if (= i ai) "pure-button-primary pure-button-active" "")}
                     "Select"]]
                   [:div.pure-u-1-2
                    (when (= i ai)
                      [:a.pure-button.button-danger.pure-u-23-24
                       {:on-click #(delete-instance! i)}
-                      "Delete"])]]]]))]])))))
+                      "Delete"])]]]]))]
+           
+           [manual-annotation-inner pattern piece-xml current-instance]
+           
+           ])))))

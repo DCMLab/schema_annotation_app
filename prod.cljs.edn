@@ -1,6 +1,6 @@
 {:main schema-annotation.core
  :output-to "target/public/js/main.js"
- ;; :output-dir "resources/public/js/out"
+ :output-dir "target/public/js/out"
  ;; :asset-path "js/out"
  ;;:externs ["resources/public/js/verovio.js"]
  :infer-externs true
