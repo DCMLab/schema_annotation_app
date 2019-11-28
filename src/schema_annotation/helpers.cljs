@@ -1,4 +1,5 @@
-(ns schema-annotation.helpers)
+(ns schema-annotation.helpers
+  (:require [clojure.string :as str]))
 
 (def xml-test "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <!DOCTYPE score-partwise PUBLIC
@@ -38,12 +39,40 @@
   </part>
 </score-partwise>")
 
+;; input type=file utilities
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn get-file [file-input]
+  (-> file-input .-files (aget 0)))
+
+(defn get-filename [file-input]
+  (pr file-input)
+  (when file-input
+    (let [res (-> file-input .-value (str/split #"(\\|/)") last)]
+      (pr res)
+      res)))
+
 (defn load-from-file!
   ([atom file]
-   (load-from-file! atom file identity))
+   (load-from-file! atom file (fn [atm fl] fl)))
   ([atom file f]
    (let [reader (new js/FileReader)]
      (set! (.-onload reader)
            (fn [e]
-             (reset! atom (f (.. e -target -result)))))
+             (swap! atom f (.. e -target -result))))
      (.readAsText reader file))))
+
+;; others
+;;;;;;;;;
+
+(defn download-as-json! [value filename]
+  (let [blob (js/Blob. #js [(.stringify js/JSON (clj->js value))]
+                       #js {:type "application/json"})
+        link (.createElement js/document "a")
+        url (.createObjectURL js/URL blob)]
+    (set! (.-href link) url)
+    (set! (.-download link) filename)
+    (.appendChild (.-body js/document) link)
+    (.click link)
+    (.removeChild (.-body js/document) link)
+    (.revokeObjectURL js/URL url)))

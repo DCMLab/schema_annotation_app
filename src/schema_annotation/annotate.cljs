@@ -98,7 +98,7 @@
         options {}]
     
     ;; make sure that verovio jumps whenever jump-candidate changes
-    (ratom/run! (pr "jump") (reset! jump @jump-candidate))
+    (ratom/run! (reset! jump @jump-candidate))
     
     ;; render function
     (fn [pattern piece-xml current-instance]
