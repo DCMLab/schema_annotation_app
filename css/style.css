@@ -28,22 +28,24 @@
     font-size: 85%;
 }
 
-.manual .manual-instance {
+.annotations .instance {
     padding: 0.5em 0;
     margin-left: 0.5em;
 }
 
-.manual .manual-instance .instance-name {
+.annotations .instance .instance-name {
     padding: 0.5em 0;
 }
 
-.manual .manual-instance-selected {
+.annotations .instance-selected {
     background-color: #e6e6e6;
 }
 
-.manual .validation-error {
+.annotations .validation-error {
     color: #d62728;
 }
+
+.automatic-controls {}
 
 /* Note selection and highlight styling */
 
