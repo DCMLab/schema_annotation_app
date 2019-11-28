@@ -38,9 +38,12 @@
   </part>
 </score-partwise>")
 
-(defn load-from-file! [data file]
-  (let [reader (new js/FileReader)]
-    (set! (.-onload reader)
-          (fn [e]
-            (reset! data (.. e -target -result))))
-    (.readAsText reader file)))
+(defn load-from-file!
+  ([atom file]
+   (load-from-file! atom file identity))
+  ([atom file f]
+   (let [reader (new js/FileReader)]
+     (set! (.-onload reader)
+           (fn [e]
+             (reset! atom (f (.. e -target -result)))))
+     (.readAsText reader file))))
