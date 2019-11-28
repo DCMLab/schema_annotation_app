@@ -6,17 +6,13 @@
 
 /* General visual stuff */
 
-.row {
-    padding: 0.5em 1em;
-}
-
-.link {
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.selected-link {
-    color: #1f77b4;
+.file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
 }
 
 .button-danger {
@@ -24,9 +20,7 @@
     color: #fff;
 }
 
-.button-small {
-    font-size: 85%;
-}
+/* annotation component */
 
 .annotations .instance {
     padding: 0.5em 0;
@@ -44,8 +38,6 @@
 .annotations .validation-error {
     color: #d62728;
 }
-
-.automatic-controls {}
 
 /* Note selection and highlight styling */
 
