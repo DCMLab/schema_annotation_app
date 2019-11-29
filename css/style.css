@@ -1,7 +1,8 @@
 #app {
     margin-left: auto;
     margin-right: auto;
-    max-width: 1024px;
+    max-width: 1044px;
+    padding: 0 10px;
 }
 
 /* General visual stuff */
@@ -19,6 +20,18 @@
     background: #d62728;
     color: #fff;
 }
+
+.placeholder {
+    min-height: 1em;
+}
+
+/* .hide-show { */
+/*     display: inline-block; */
+/*     margin-left: auto; */
+/*     margin-right: 0; */
+/*     /\* width: 100%; *\/ */
+/*     /\* text-align: right; *\/ */
+/* } */
 
 /* annotation component */
 
@@ -39,7 +52,40 @@
     color: #d62728;
 }
 
-/* Note selection and highlight styling */
+select.instance-select {
+    border-radius: 0;
+    border: none;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+
+.automatic {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.automatic .pure-button-group {
+    /* min-width: 100px; */
+}
+
+.automatic label {
+    padding: 0 .5em;
+    /* min-width: 100px; */
+}
+
+.automatic input {
+    margin-right: .5em;
+    flex-grow: 1;
+}
+
+/* verovio component: note selection and highlight styling */
+
+.verovio-cmp svg {
+    width: 100%;
+    height: auto;
+}
 
 .verovio-cmp.allow-select .note:hover {
     /* fill: #1f77b4; */
