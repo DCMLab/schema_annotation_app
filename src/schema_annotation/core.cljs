@@ -98,40 +98,41 @@ Shortcuts:
          [:div.pure-g
           [:h2.pure-u-1 "Input / Output"]
           
-          ;; score file input
-          [:label.pure-button.pure-u-1-5
-           (or @fn-score "Select Score")
-           [:input.file-input
-            {:type "file"
-             :accept ".xml,.musicxml"
-             :multiple false
-             :ref #(reset! node-score %)
-             :on-change #(reset! fn-score (h/get-filename (.-target %)))
-             #_(fn [ev]
-                 )}]]
+          [:div.pure-button-group.pure-u-1.pure-u-md-3-5
+           ;; score file input
+           [:label.pure-button.pure-u-1-2.pure-u-sm-1-3
+            (or @fn-score "Select Score")
+            [:input.file-input
+             {:type "file"
+              :accept ".xml,.musicxml"
+              :multiple false
+              :ref #(reset! node-score %)
+              :on-change #(reset! fn-score (h/get-filename (.-target %)))
+              #_(fn [ev]
+                  )}]]
+           
+           ;; suggestion file input
+           [:label.pure-button.pure-u-1-2.pure-u-sm-1-3
+            (or @fn-suggest "Select Suggestions")
+            [:input.file-input
+             {:type "file"
+              :accept ".json"
+              :multiple false
+              :ref #(reset! node-suggest %)
+              :on-change #(reset! fn-suggest (h/get-filename (.-target %)))
+              #_(fn [ev]
+                  (let [files (.. ev -target -files)]
+                    (h/load-from-file! state (aget files 0) load-suggestions!)))}]]
+           
+           [:a.pure-button.pure-button-primary.pure-u-1.pure-u-sm-1-3
+            {:on-click (fn []
+                         (h/load-from-file! score (h/get-file @node-score))
+                         (h/load-from-file! state (h/get-file @node-suggest) load-suggestions!))}
+            "Load Files"]]
           
-          ;; suggestion file input
-          [:label.pure-button.pure-u-1-5
-           (or @fn-suggest "Select Suggestions")
-           [:input.file-input
-            {:type "file"
-             :accept ".json"
-             :multiple false
-             :ref #(reset! node-suggest %)
-             :on-change #(reset! fn-suggest (h/get-filename (.-target %)))
-             #_(fn [ev]
-                 (let [files (.. ev -target -files)]
-                   (h/load-from-file! state (aget files 0) load-suggestions!)))}]]
+          [:div.pure-u-1.pure-u-md-1-5.placeholder]
           
-          [:a.pure-button.pure-button-primary.pure-u-1-5
-           {:on-click (fn []
-                        (h/load-from-file! score (h/get-file @node-score))
-                        (h/load-from-file! state (h/get-file @node-suggest) load-suggestions!))}
-           "Load Files"]
-          
-          [:div.pure-u-1-5]
-          
-          [:a.pure-button.pure-u-1-5
+          [:a.pure-button.pure-u-1.pure-u-md-1-5
            {:on-click #(download-annotations! state)}
            "Download Annotations"]])
        

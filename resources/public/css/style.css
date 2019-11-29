@@ -20,6 +20,10 @@
     color: #fff;
 }
 
+.placeholder {
+    min-height: 1em;
+}
+
 /* .hide-show { */
 /*     display: inline-block; */
 /*     margin-left: auto; */
