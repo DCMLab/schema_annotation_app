@@ -46,10 +46,8 @@
   (-> file-input .-files (aget 0)))
 
 (defn get-filename [file-input]
-  (pr file-input)
   (when file-input
     (let [res (-> file-input .-value (str/split #"(\\|/)") last)]
-      (pr res)
       res)))
 
 (defn load-from-file!

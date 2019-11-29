@@ -15,7 +15,7 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def manual-text (md/component (md/md->hiccup "
-1. Select a score (musicxml) and an annotation file (groups/<schema>),
+1. Select a score (`musicxml`) and an annotation file (`groups/<schema>`),
    then click on \"Load Files\".
 2. Select an instance from the list.
 3. For each instance, either select one of the suggested \"automatic\" alternatives,
@@ -65,7 +65,7 @@ Shortcuts:
                    {i (annotate/new-automatic-instance (js->clj alternatives))})))))
 
 (defn download-annotations! [state]
-  (pr (:piece @state))
+  ;; (pr (:piece @state))
   (let [inst (:instances @state)
         annots (vec (map annotate/get-stages (vals inst)))
         piece (:piece @state)
