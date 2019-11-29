@@ -95,8 +95,9 @@
         (when @jump (jump-to-page! tk jump page))
         ;; ensures update on every change of controls or selected
         (let [atoms (do @selected @highlighted @page)]
-          [:div {:class (str "verovio-cmp" (when @allow-select " allow-select"))
-                 :dangerouslySetInnerHTML {:__html @svg}}]))
+          [:div.verovio-cmp
+           {:class (when @allow-select " allow-select")
+            :dangerouslySetInnerHTML {:__html @svg}}]))
       
       :component-did-update
       (fn [comp]

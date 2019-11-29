@@ -20,6 +20,14 @@
     color: #fff;
 }
 
+/* .hide-show { */
+/*     display: inline-block; */
+/*     margin-left: auto; */
+/*     margin-right: 0; */
+/*     /\* width: 100%; *\/ */
+/*     /\* text-align: right; *\/ */
+/* } */
+
 /* annotation component */
 
 .annotations .instance {
@@ -39,7 +47,12 @@
     color: #d62728;
 }
 
-/* Note selection and highlight styling */
+/* verovio component: note selection and highlight styling */
+
+.verovio-cmp svg {
+    width: 100%;
+    height: auto;
+}
 
 .verovio-cmp.allow-select .note:hover {
     /* fill: #1f77b4; */

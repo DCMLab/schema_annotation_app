@@ -281,6 +281,9 @@
            ;; [:p (str @active-instance)]
            ;; [:p (str @instances)]
            
+           ;; inner annotation component
+           [annotation-inner pattern piece-xml current-instance]
+           
            ;; instance header
            [:form.pure-form.pure-g
             [:div.pure-u-1.pure-u-sm-4-5
@@ -313,9 +316,4 @@
                    (when (= i ai)
                      [:a.pure-button.button-danger.pure-u-23-24
                       {:on-click #(delete-instance! i)}
-                      "Delete"])]]]]))]
-           
-           ;; inner annotation component
-           [annotation-inner pattern piece-xml current-instance]
-           
-           ])))))
+                      "Delete"])]]]]))]])))))
