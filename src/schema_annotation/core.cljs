@@ -4,12 +4,14 @@
             [schema-annotation.annotate :as annotate]
             [schema-annotation.helpers :as h]
             [reagent-keybindings.keyboard :as kb]
-            [markdown-to-hiccup.core :as md]))
+            [markdown-to-hiccup.core :as md]
+            [ajax.core :as ajax]))
 
 (defonce state (r/atom {:score-xml ""
                         :instances (sorted-map)
                         :piece ""
-                        :schema ""}))
+                        :schema ""
+                        :lexicon nil}))
 
 ;; manual component
 ;;;;;;;;;;;;;;;;;;;
@@ -141,6 +143,9 @@ Shortcuts:
          :on-click #(swap! visible not)}
         (if @visible "Hide IO" "Show IO")]])))
 
+;; main app component
+;;;;;;;;;;;;;;;;;;;;;
+
 (defn schema-annotation-app []
   (let [score (r/cursor state [:score-xml])
         instances (r/cursor state [:instances])]
@@ -154,7 +159,7 @@ Shortcuts:
        [file-io-comp score state]
     
        ;; TODO: pattern is a placeholder, should be nested list
-       [annotate/annotation-comp [1 2 3 4 5 6 7 8 9] @score instances]
+       [annotate/annotation-comp (get (:lexicon @state) (:schema @state)) @score instances]
        ;; [vrv/verovio-example-comp]
        [kb/keyboard-listener]
        ])))
@@ -164,6 +169,11 @@ Shortcuts:
             (.getElementById js/document "app")))
 
 (defn init! []
+  (ajax/GET "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/lexicon.json?token=AAMRVXTZFEMFH7REHADTRWC55YQZI"
+            {:handler (fn [result] (swap! state assoc :lexicon result))
+             :response-format :json
+             :format :json
+             :keywords? false})
   (reload))
 
 (init!)

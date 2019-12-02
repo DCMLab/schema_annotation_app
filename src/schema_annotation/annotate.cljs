@@ -17,8 +17,7 @@
   {:auto true
    :alts alts
    :alt 0
-   :stages nil ;;(get alts 0)
-   })
+   :stages nil})
 
 (defn make-manual [inst]
   (let [stages (if (or (nil? (:alts inst)) (nil? (:alt inst)))
@@ -29,15 +28,7 @@
            :auto false)))
 
 (defn make-automatic [inst]
-  (assoc inst :auto true)
-  #_(let [alt (or (:alt inst 0))
-        alts (:alts inst)]
-    (if (nil? alts)
-      inst
-      (assoc inst
-             :auto true
-             :alt alt
-             :stages (get alts alt)))))
+  (assoc inst :auto true))
 
 (defn get-stages [inst]
   (if (:auto inst)
@@ -55,6 +46,18 @@
      ([k] (get-stages @instance))
      ([k v] (swap! instance set-stages v)))
    []))
+
+(defn validate-instance [pattern instance]
+  (when instance
+    (cond
+      (some empty? instance)
+      "contains empty stages"
+      (not= (count pattern) (count instance))
+      "wrong number of stages (internal error)"
+      (not-every? true? (map #(= (count %1) (count %2)) pattern instance))
+      "wrong number of notes in some stage"
+      ;; TODO: validate against actual interval pattern
+      :else "")))
 
 ;; inner annotation component
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -161,7 +164,10 @@
              
              ;; instance selection
              [:div.pure-form.pure-u-1.pure-u-lg-2-5
-              [:legend "Instance"]
+              [:legend "Instance "
+               [:span.validation-error
+                (when-not (:auto @current-instance)
+                  (validate-instance pattern (:stages @current-instance)))]]
               (let [inst @instances
                     ai @active-instance
                     ks (to-array (keys inst))
@@ -296,12 +302,6 @@
 ;; outer annotation component
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn validate-instance [pattern instance]
-  (cond
-    (some empty instance) "contains empty stages"
-    ;; TODO: validate against actual pattern
-    :else ""))
-
 (defn annotation-comp [pattern piece-xml instances]
   ;; local state /variables
   (let [active-instance (r/atom nil)]
@@ -350,7 +350,8 @@
                    (str "Instance " (inc i)) " "
                    (if (:auto ins) "(automatic)" "(manual)") " "
                    [:span.validation-error
-                    (validate-instance pattern ins)]]]
+                    (when-not (:auto ins)
+                      (validate-instance pattern (:stages ins)))]]]
                  [:div.pure-u-1.pure-u-md-1-4
                   [:div.pure-u-1-2
                    [:a.pure-button.pure-u-23-24
