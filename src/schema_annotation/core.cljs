@@ -30,6 +30,8 @@ Shortcuts:
 - `left`/`right` for turning pages.
 - `shift-left`/`-right` for selecting alternative suggestions
 - `1`...`9` for selecting / deselecting a stage.
+- `shift-up`/`-down` for selecting the previous / next instance.
+- `enter` for (un)checking the current instance.
 ")))
 
 (defn manual-comp []
@@ -55,9 +57,6 @@ Shortcuts:
         groups (aget json "groups")
         piece (aget json "piece")
         schema (aget json "schema")]
-    ;;(pr (aget json "piece"))
-    ;;(pr (first groups))
-    ;;(sorted-map)
     (assoc state
            :piece piece
            :schema schema
@@ -67,19 +66,14 @@ Shortcuts:
                    {i (annotate/new-automatic-instance (js->clj alternatives))})))))
 
 (defn download-annotations! [state]
-  ;; (pr (:piece @state))
   (let [inst (:instances @state)
         annots (vec (map annotate/get-stages (vals inst)))
         piece (:piece @state)
         schema (:schema @state)
         out {:instances annots
              :piece piece
-             :schema schema}
-        ;;json (js/JSON.stringify (clj->js out))
-        ]
-    (h/download-as-json! out (str piece "_" schema ".json"))
-    ;;(pr json)
-    ))
+             :schema schema}]
+    (h/download-as-json! out (str piece "_" schema ".json"))))
 
 (defn file-io-comp [score state]
   
@@ -109,9 +103,7 @@ Shortcuts:
               :accept ".xml,.musicxml"
               :multiple false
               :ref #(reset! node-score %)
-              :on-change #(reset! fn-score (h/get-filename (.-target %)))
-              #_(fn [ev]
-                  )}]]
+              :on-change #(reset! fn-score (h/get-filename (.-target %)))}]]
            
            ;; suggestion file input
            [:label.pure-button.pure-u-1-2.pure-u-sm-1-3
@@ -121,10 +113,7 @@ Shortcuts:
               :accept ".json"
               :multiple false
               :ref #(reset! node-suggest %)
-              :on-change #(reset! fn-suggest (h/get-filename (.-target %)))
-              #_(fn [ev]
-                  (let [files (.. ev -target -files)]
-                    (h/load-from-file! state (aget files 0) load-suggestions!)))}]]
+              :on-change #(reset! fn-suggest (h/get-filename (.-target %)))}]]
            
            [:a.pure-button.button-primary.pure-u-1.pure-u-sm-1-3
             {:on-click (fn []

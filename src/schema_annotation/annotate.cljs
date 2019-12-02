@@ -179,16 +179,15 @@
                     inst (get insts ai)
                     ks (to-array (keys insts))
                     key-i (let [i (.indexOf ks ai)] (if (= -1 i) nil i))
-                    prev-key (when key-i (get ks (dec key-i)))
-                    next-key (when key-i (get ks (inc key-i)))
+                    prev-key (or (when key-i (get ks (dec key-i))) (last ks))
+                    next-key (or (when key-i (get ks (inc key-i))) (first ks))
                     go-prev-instance #(toggle-active-instance! active-instance prev-key)
                     go-next-instance #(toggle-active-instance! active-instance next-key)]
                 [:div.pure-button-group.pure-u-1.pure-u-sm-1-2
                  [:a.pure-button
                   {:class (when-not prev-key "pure-button-disabled")
                    :on-click go-prev-instance}
-                  ;; TODO: fix this
-                  ;; [kb/kb-action "shift-up" go-prev-instance]
+                  ^{:key ai} [kb/kb-action "shift-up" go-prev-instance]
                   "<"]
                  [:select.instance-select
                   {:on-change #(let [key (-> % .-target .-value js/parseInt)]
@@ -205,14 +204,14 @@
                  [:a.pure-button
                   {:class (when-not next-key "pure-button-disabled")
                    :on-click go-next-instance}
-                  ;; TODO: fix this
-                  ;; [kb/kb-action "shift-down" go-next-instance]
+                  ^{:key ai} [kb/kb-action "shift-down" go-next-instance]
                   ">"]
                  
                  [:a.pure-button
                   {:class (str (when (nil? inst) "pure-button-disabled ")
                                (when (:checked inst) "pure-button-active button-checked"))
                    :on-click #(toggle-instance-checked! instances ai)}
+                  ^{:key ai} [kb/kb-action "enter" #(toggle-instance-checked! instances ai)]
                   "✔"]])
               
               [:div.pure-u-1.pure-u-sm-1-2
