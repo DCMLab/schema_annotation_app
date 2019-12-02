@@ -16,8 +16,21 @@
     z-index: -1;
 }
 
+
+
 .button-danger {
     background: #d62728;
+    color: #fff;
+}
+
+.button-checked {
+    background-color: #2ca02c;
+    color: #fff;
+}
+
+.button-primary,
+.button-selected {
+    background-color: #1f77b4;
     color: #fff;
 }
 
@@ -35,6 +48,11 @@
 
 /* annotation component */
 
+.annotations .instance-list {
+    list-style-type: none;
+    padding: 0;
+}
+
 .annotations .instance {
     padding: 0.5em 0;
     margin-left: 0.5em;
@@ -45,7 +63,15 @@
 }
 
 .annotations .instance-selected {
-    background-color: #e6e6e6;
+    background-color: #aec7e8;
+}
+
+.annotations .instance-checked {
+    background-color: #98df8a;
+}
+
+.annotations .instance-checked.instance-selected {
+    background-color: #aec7e8;/* #2ca02c; */
 }
 
 .annotations .validation-error {

@@ -126,7 +126,7 @@ Shortcuts:
                   (let [files (.. ev -target -files)]
                     (h/load-from-file! state (aget files 0) load-suggestions!)))}]]
            
-           [:a.pure-button.pure-button-primary.pure-u-1.pure-u-sm-1-3
+           [:a.pure-button.button-primary.pure-u-1.pure-u-sm-1-3
             {:on-click (fn []
                          (h/load-from-file! score (h/get-file @node-score))
                          (h/load-from-file! state (h/get-file @node-suggest) load-suggestions!))}

@@ -2,7 +2,8 @@
   (:require [reagent.core :as r]
             [reagent.ratom :as ratom]
             [schema-annotation.verovio :as vrv]
-            [reagent-keybindings.keyboard :as kb]))
+            [reagent-keybindings.keyboard :as kb]
+            [clojure.string :as str]))
 
 ;; instances
 ;;;;;;;;;;;;
@@ -11,13 +12,15 @@
   {:auto false
    :alts nil
    :alt nil
-   :stages (vec (repeat (count pattern) []))})
+   :stages (vec (repeat (count pattern) []))
+   :checked false})
 
 (defn new-automatic-instance [alts]
   {:auto true
    :alts alts
    :alt 0
-   :stages nil})
+   :stages nil
+   :checked false})
 
 (defn make-manual [inst]
   (let [stages (if (or (nil? (:alts inst)) (nil? (:alt inst)))
@@ -77,8 +80,11 @@
                    (assoc ins ai value)))))))
    []))
 
-(defn toggle-instance! [active-instance i]
+(defn toggle-active-instance! [active-instance i]
   (swap! active-instance #(if (= % i) nil i)))
+
+(defn toggle-instance-checked! [instances active-instance]
+  (swap! instances update-in [active-instance :checked] not))
 
 (defn current-stage-cursor [active-stage stages]
   (r/cursor
@@ -168,14 +174,15 @@
                [:span.validation-error
                 (when-not (:auto @current-instance)
                   (validate-instance pattern (:stages @current-instance)))]]
-              (let [inst @instances
+              (let [insts @instances
                     ai @active-instance
-                    ks (to-array (keys inst))
+                    inst (get insts ai)
+                    ks (to-array (keys insts))
                     key-i (let [i (.indexOf ks ai)] (if (= -1 i) nil i))
                     prev-key (when key-i (get ks (dec key-i)))
                     next-key (when key-i (get ks (inc key-i)))
-                    go-prev-instance #(toggle-instance! active-instance prev-key)
-                    go-next-instance #(toggle-instance! active-instance next-key)]
+                    go-prev-instance #(toggle-active-instance! active-instance prev-key)
+                    go-next-instance #(toggle-active-instance! active-instance next-key)]
                 [:div.pure-button-group.pure-u-1.pure-u-sm-1-2
                  [:a.pure-button
                   {:class (when-not prev-key "pure-button-disabled")
@@ -186,12 +193,12 @@
                  [:select.instance-select
                   {:on-change #(let [key (-> % .-target .-value js/parseInt)]
                                  (if (js/Number.isNaN key)
-                                   (toggle-instance! active-instance nil)
-                                   (toggle-instance! active-instance key)))}
+                                   (toggle-active-instance! active-instance nil)
+                                   (toggle-active-instance! active-instance key)))}
                   [:option
                    {:key "none" :value nil :selected (when (= ai nil) "selected")}
-                   "<none>"]
-                  (doall (for [[k v] inst]
+                   "none"]
+                  (doall (for [[k v] insts]
                            [:option
                             {:key k :value k :selected (when (= ai k) "selected")}
                             (inc k)]))]
@@ -201,7 +208,12 @@
                   ;; TODO: fix this
                   ;; [kb/kb-action "shift-down" go-next-instance]
                   ">"]
-                 ])
+                 
+                 [:a.pure-button
+                  {:class (str (when (nil? inst) "pure-button-disabled ")
+                               (when (:checked inst) "pure-button-active button-checked"))
+                   :on-click #(toggle-instance-checked! instances ai)}
+                  "✔"]])
               
               [:div.pure-u-1.pure-u-sm-1-2
                (if (:auto @current-instance)
@@ -332,33 +344,41 @@
          [:form.pure-form.pure-g
           [:div.pure-u-1.pure-u-sm-4-5
            [:legend "Instances"]]
-          [:a.pure-button.pure-button-primary.pure-u-1.pure-u-sm-1-5
+          [:a.pure-button.button-primary.pure-u-1.pure-u-sm-1-5
            {:on-click #(add-instance!)}
            "New Instance"]]
          
          ;; instance list
          (let [ai @active-instance]
-           [:ol
+           [:ol.instance-list
             (doall
              (for [[i ins] @instances]
                [:li
                 {:key i
-                 :class (if (= i ai) "manual-instance-selected" "")}
+                 :class (str (when (= i ai) "instance-selected ")
+                             (when (:checked ins) "instance-checked")
+                             )}
                 [:div.pure-g.instance
-                 [:div.pure-u-1.pure-u-md-3-4
+                 [:div.pure-u-1.pure-u-md-5-8
                   [:div.instance-name
                    (str "Instance " (inc i)) " "
                    (if (:auto ins) "(automatic)" "(manual)") " "
                    [:span.validation-error
                     (when-not (:auto ins)
                       (validate-instance pattern (:stages ins)))]]]
-                 [:div.pure-u-1.pure-u-md-1-4
-                  [:div.pure-u-1-2
+                 [:div.pure-u-1.pure-u-md-3-8
+                  [:div.pure-u-1-3
                    [:a.pure-button.pure-u-23-24
-                    {:on-click #(toggle-instance! active-instance i)
-                     :class (if (= i ai) "pure-button-primary pure-button-active" "")}
-                    "Select"]]
-                  [:div.pure-u-1-2
+                    {:on-click #(toggle-active-instance! active-instance i)
+                     :class (when (= i ai) "button-selected pure-button-active")}
+                    (if (= i ai) "Deselect" "Select")]]
+                  [:div.pure-u-1-3
+                   [:a.pure-button.pure-u-23-24
+                    {:class (when (:checked ins) "pure-button-active button-checked")
+                     :on-click #(toggle-instance-checked! instances i)}
+                    "Checked"
+                    ]]
+                  [:div.pure-u-1-3
                    (when (= i ai)
                      [:a.pure-button.button-danger.pure-u-23-24
                       {:on-click #(delete-instance! i)}
