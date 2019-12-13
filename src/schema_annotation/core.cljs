@@ -10,7 +10,7 @@
 (defonce state (r/atom {:score-xml ""
                         :instances (sorted-map)
                         :piece ""
-                        :schema ""
+                        :schema nil
                         :lexicon nil}))
 
 ;; manual component
@@ -19,12 +19,14 @@
 (def manual-text (md/component (md/md->hiccup "
 1. Select a score (`musicxml`) and an annotation file (`groups/<schema>`),
    then click on \"Load Files\".
-2. Select an instance from the list.
-3. For each instance, either select one of the suggested \"automatic\" alternatives,
+1. Select an instance from the list.
+1. For each instance, either select one of the suggested \"automatic\" alternatives,
    or switch to a \"manual\" instance and edit each stage of the preselected match.
-4. You can delete clearly invalid instances,
+1. When you are done with an instance, you can mark it as \"checked\".
+   This is just a help for you to keep track of your work.
+1. You can delete clearly invalid instances,
    and add new instances where no suggestion exists.
-5. When you are happy with your annotations, click on \"Download Annotations\"
+1. When you are happy with your annotations, click on \"Download Annotations\"
 
 Shortcuts:
 - `left`/`right` for turning pages.
@@ -140,16 +142,19 @@ Shortcuts:
         instances (r/cursor state [:instances])]
     (fn []
       [:div
-       ;; (str @instances)
        [:h1 "Schema Annotation"]
        
        [manual-comp]
        
        [file-io-comp score state]
-    
-       ;; TODO: pattern is a placeholder, should be nested list
-       [annotate/annotation-comp (get (:lexicon @state) (:schema @state)) @score instances]
-       ;; [vrv/verovio-example-comp]
+
+       (let [lexicon (:lexicon @state)
+             schema (:schema @state)]
+         (when (and  lexicon schema)
+           (let [pattern (get lexicon schema)]
+             (if pattern
+               [annotate/annotation-comp pattern @score instances]
+               (js/alert (str "Schema " (:schema @state) " not found in the lexicon! Please report this to the developers."))))))
        [kb/keyboard-listener]
        ])))
 
@@ -158,7 +163,7 @@ Shortcuts:
             (.getElementById js/document "app")))
 
 (defn init! []
-  (ajax/GET "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/lexicon.json?token=AAMRVXTZFEMFH7REHADTRWC55YQZI"
+  (ajax/GET "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/data/lexicon.json?token=AAMRVXUKKEL2ZSOAY7LTTLK57SQ2M"
             {:handler (fn [result] (swap! state assoc :lexicon result))
              :response-format :json
              :format :json
