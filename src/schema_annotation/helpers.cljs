@@ -1,5 +1,7 @@
 (ns schema-annotation.helpers
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [intervals.core :as i]
+            [intervals.spelled :as spelled]))
 
 (def xml-test "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <!DOCTYPE score-partwise PUBLIC
@@ -74,3 +76,18 @@
     (.click link)
     (.removeChild (.-body js/document) link)
     (.revokeObjectURL js/URL url)))
+
+;; schemata
+;;;;;;;;;;;
+
+(defn map-schema [f schema]
+  (vec (for [stage schema]
+           (vec (for [note stage]
+                  (f note))))))
+
+(defn rel-schema [schema]
+  (let [ref ((schema 0) 0)]
+    (map-schema #(i/i- % ref) schema)))
+
+(defn parse-pattern [pattern]
+  (rel-schema (map-schema spelled/parse-sic pattern)))

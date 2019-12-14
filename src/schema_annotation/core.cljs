@@ -5,7 +5,8 @@
             [schema-annotation.helpers :as h]
             [reagent-keybindings.keyboard :as kb]
             [markdown-to-hiccup.core :as md]
-            [ajax.core :as ajax]))
+            [ajax.core :as ajax]
+            [intervals.spelled :as i]))
 
 (defonce state (r/atom {:score-xml ""
                         :instances (sorted-map)
@@ -151,7 +152,7 @@ Shortcuts:
        (let [lexicon (:lexicon @state)
              schema (:schema @state)]
          (when (and  lexicon schema)
-           (let [pattern (get lexicon schema)]
+           (let [pattern (h/parse-pattern (get lexicon schema))]
              (if pattern
                [annotate/annotation-comp pattern @score instances]
                (js/alert (str "Schema " (:schema @state) " not found in the lexicon! Please report this to the developers."))))))
