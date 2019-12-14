@@ -66,3 +66,9 @@
 
 (defn make-pitch [interval]
   (Pitch. interval))
+
+(defn p-p [p1 p2]
+  (p-i p1 (interval p2)))
+
+(defn p-to [p1 p2]
+  (p-p p2 p1))

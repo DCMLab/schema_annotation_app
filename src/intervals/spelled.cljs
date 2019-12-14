@@ -7,11 +7,15 @@
 
 (defonce diachrom [0 2 4 5 7 9 11])
 (defonce dianames ["C", "D", "E", "F", "G", "A", "B"])
+(defonce dianames-lookup (zipmap dianames (range)))
 (defonce diafifths [0 2 4 -1 1 3 5])
 (defonce perfectints #{0 3 4})
 
 (defonce rg-sic #"^(-?)(a+|d+|[MPm])([1-7])$")
 (defonce rg-spelled #"^(-?)(a+|d+|[MPm])([1-7])(\+|-)(\d+)$")
+
+(defonce rg-spc #"(?i)^([a-g])(♭+|♯+|b+|#+)?$")
+(defonce rg-spelled-p #"(?i)^([a-g])(♭+|♯+|b+|#+)?(-?\d+)$")
 
 (defn dia->chrom [d]
   (+ (diachrom (mod d 7))
@@ -94,6 +98,9 @@
 (defn make-spelled [dia chrom]
   (SInterval. dia chrom))
 
+(defn make-spelled-p [dia chrom]
+  (i/make-pitch (make-spelled dia chrom)))
+
 ;; Spelled interval class
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -155,6 +162,12 @@
    (let [diff (- chrom (dia->chrom dia))]
      (make-sic (+ (diafifths (mod dia 7)) (* 7 diff))))))
 
+(defn make-spc
+  ([fifths]
+   (i/make-pitch (make-sic fifths)))
+  ([dia chrom]
+   (i/make-pitch (make-sic dia chrom))))
+
 ;; parsing
 ;;;;;;;;;;
 
@@ -175,16 +188,35 @@
       (make-spelled dia chrom))))
 
 (defn parse-spelled [string]
-  (let [m (re-find rg-spelled string)]
-    (when m
-      (let [int (match-interval (m 2) (m 3))]
-        (when int
-          (let [octs (js/parseInt (str (m 4) (m 5)))
-                intoct (i/i+ int (i/octave int octs))]
-            (if (= (m 1) "-") (i/i- intoct) intoct)))))))
+  (when-let [m (re-find rg-spelled string)]
+    (when-let [int (match-interval (m 2) (m 3))]
+      (let [octs (js/parseInt (str (m 4) (m 5)))
+            intoct (i/i+ int (i/octave int octs))]
+        (if (= (m 1) "-") (i/i- intoct) intoct)))))
 
 (defn parse-sic [string]
-  (let [m (re-find rg-sic string)]
-    (when m
-      (let [int (i/ic (match-interval (m 2) (m 3)))]
-        (if (= (m 1) "-") (i/i- int) int)))))
+  (when-let [m (re-find rg-sic string)]
+    (let [int (i/ic (match-interval (m 2) (m 3)))]
+      (if (= (m 1) "-") (i/i- int) int))))
+
+(defn match-pitch [letter accs]
+  (when-let [dia (dianames-lookup (str/upper-case letter))]
+    (let [defchrom (diachrom dia)
+          chrom (cond
+                  (or (nil? accs) (empty? accs)) defchrom
+                  (re-find #"^♭+|b+$" accs) (- defchrom (count accs))
+                  (re-find #"^♯+|#+$" accs) (+ defchrom (count accs))
+                  :else nil)]
+      (when chrom
+        (make-spelled-p dia chrom)))))
+
+(defn parse-spelled-p [string]
+  (when-let [m (re-find rg-spelled-p string)]
+    (let [octs (js/parseInt (m 3))
+          pitch (match-pitch (m 1) (m 2))
+          i (i/interval pitch)]
+      (i/p+i pitch (i/octave i octs)))))
+
+(defn parse-spc [string]
+  (when-let [m (re-find rg-spc string)]
+    (i/pc (match-pitch (m 1) (m 2)))))
