@@ -169,6 +169,145 @@ Shortcuts:
          :on-click #(swap! visible not)}
         (if @visible "Hide IO" "Show IO")]])))
 
+
+;; github IO component
+;;;;;;;;;;;;;;;;;;;;;;
+
+(defn corpora-index [json]
+  (let [res (mapv #(:name %) (filter #(= (:type %) "dir") json))]
+    res))
+
+(def gql-query "{
+  repository(name: \"schema_annotation_data\", owner: \"DCMLab\") {
+    object(expression: \"master:data/\") {
+      ... on Tree {
+        entries {
+          name
+          type
+          object {
+            ... on Tree {
+              entries {
+                name
+                object {
+                  ... on Tree {
+                    entries {
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}")
+
+(def gh-token "88bc5d8a160f6e0025f791c98a92c9320907172f")
+
+(defn parse-gh-data [result]
+  (let [entries (-> result :data :repository :object :entries)
+        corpora (filter #(= (:type %) "tree") entries)
+        corpora-names (mapv :name corpora)
+        pieces (into {} (for [crp corpora]
+                          (let [crp-name (:name crp)
+                                subdirs (-> crp :object :entries)
+                                xmldir (first (filter #(= (:name %) "musicxml") subdirs))
+                                names (map :name (-> xmldir :object :entries))
+                                pieces (mapv #(subs % 0 (- (count %) 4)) names)]
+                            [crp-name pieces])))]
+    [corpora-names pieces]))
+
+(defn fetch-gh-data! [state]
+  (ajax/POST "https://api.github.com/graphql"
+             {:handler (fn [result]
+                         (let [[corpora pieces] (parse-gh-data result)]
+                           (swap! state assoc :corpora corpora :pieces pieces)))
+              ;; :error-handler (fn [{:keys [status text]}]
+              ;;                  (pr "Error: " status text))
+              :response-format :json
+              :keywords? true
+              :format :json
+              :headers {"Authorization" (str "token " gh-token)}
+              :params {:query gql-query}})
+  nil)
+
+(defn github-io-comp [state]
+  (let [st @state
+        visible (r/atom true)
+        corpus (r/atom (first (:corpora st)))
+        ;; a-pieces (r/atom nil)
+        piece (r/atom nil)
+        schema (r/atom (-> st :lexicon keys sort first))]
+    
+    (fn [state]
+      (let [st @state
+            corpora (:corpora st)
+            schemas (sort (keys (:lexicon st)))
+            s-pieces (:pieces st)
+            crp @corpus
+            pieces (get s-pieces crp)
+            pc @piece
+            scm @schema]
+        (when-not crp
+          (reset! corpus (first corpora)))
+        ;; (when-not pieces
+        ;;   (reset! a-pieces (get s-pieces crp)))
+        (when-not pc
+          (reset! piece (first pieces)))
+        (when-not scm
+          (reset! schema (first schemas)))
+        
+        [:div       
+         (when @visible
+           [:div
+            [:h2 "Input / Output"]
+            [:form.pure-form.pure-form-stacked.pure-g
+             [:label.pure-u-1.pure-u-md-1-5
+              "Corpus"
+              [:select.pure-u-23-24
+               {:on-change #(let [key (.. % -target -value)]
+                              (reset! corpus key))}
+               (doall (for [c corpora]
+                        [:option
+                         {:key c :value c :selected (when (= c crp) "selected")}
+                         c]))]]
+             [:label.pure-u-1.pure-u-md-1-5
+              "Piece"
+              [:select.pure-u-23-24
+               {:on-change #(reset! piece (.. % -target -value))}
+               (doall (for [p pieces]
+                        [:option
+                         {:key p :value p :selected (when (= p pc) "selected")}
+                         p]))]]
+             [:label.pure-u-1.pure-u-md-1-5
+              "Schema"
+              [:select.pure-u-23-24
+               {:on-change #(reset! schema (.. % -target -value))}
+               (doall (for [s schemas]
+                        [:option
+                         {:key s :value s :selected (when (= s scm) "selected")}
+                         s]))]]
+             
+             [:div.pure-u-1.pure-u-md-1-5
+              [:a.pure-button.pure-u-23-24
+               "Load Piece"]]
+             
+             [:div.pure-u-1.pure-u-md-1-5
+              [:a.pure-button.pure-u-23-24
+               {:on-click #(download-annotations! state)}
+               "Download Annotations"]]]
+            [:p "corpus: " crp]
+            [:p "piece: " pc]
+            [:p "schema: " scm]
+            ])
+         
+         [:a.hide-show
+          {:href "javascript:void(0)"
+           :on-click #(swap! visible not)}
+          (if @visible "Hide IO" "Show IO")]]))))
+
 ;; main app component
 ;;;;;;;;;;;;;;;;;;;;;
 
@@ -181,7 +320,8 @@ Shortcuts:
        
        [manual-comp]
        
-       [file-io-comp score state]
+       ;;[file-io-comp score state]
+       [github-io-comp state]
 
        (let [lexicon (:lexicon @state)
              schema (:schema @state)]
@@ -203,6 +343,7 @@ Shortcuts:
              :response-format :json
              :format :json
              :keywords? false})
+  (fetch-gh-data! state)
   (reload))
 
 (init!)
