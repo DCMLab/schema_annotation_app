@@ -12,7 +12,10 @@
                         :instances (sorted-map)
                         :piece ""
                         :schema nil
-                        :lexicon nil}))
+                        :notes {}
+                        :lexicon nil
+                        :corpora nil
+                        :pieces nil}))
 
 ;; manual component
 ;;;;;;;;;;;;;;;;;;;
@@ -68,6 +71,25 @@ Shortcuts:
                  (for [[i alternatives] (map-indexed vector groups)]
                    {i (annotate/new-automatic-instance (js->clj alternatives))})))))
 
+(defn load-notes! [state json-string]
+  (letfn [(parse-frac [obj]
+            (/ (js/parseInt (aget obj "n"))
+               (js/parseInt (aget obj "d"))))
+          
+          (add-note [note-map note]
+            (let [id (aget note "id")
+                  on (parse-frac (aget note "on"))
+                  off (parse-frac (aget note "off"))
+                  pitch (i/parse-spelled-p (aget note "p"))]
+              (if (contains? note-map id)
+                (update note-map id (partial merge-with conj) {:onset on :offset off})
+                (assoc note-map id {:onset [on] :offset [off] :pitch pitch}))))]
+    
+    (let [json (.parse js/JSON json-string)
+          notes (reduce add-note {} json)]
+      (pr (notes "note0"))
+      (assoc state :notes notes))))
+
 (defn download-annotations! [state]
   (let [inst (:instances @state)
         annots (vec (map annotate/get-stages (vals inst)))
@@ -86,8 +108,10 @@ Shortcuts:
   ;; - visibility
   (let [node-score (atom nil)
         node-suggest (atom nil)
+        node-notes (atom nil)
         fn-score (r/atom nil)
         fn-suggest (r/atom nil)
+        fn-notes (r/atom nil)
         visible (r/atom true)]
     
     ;; render function
@@ -97,9 +121,9 @@ Shortcuts:
          [:div.pure-g
           [:h2.pure-u-1 "Input / Output"]
           
-          [:div.pure-button-group.pure-u-1.pure-u-md-3-5
+          [:div.pure-button-group.pure-u-1.pure-u-md-4-5
            ;; score file input
-           [:label.pure-button.pure-u-1-2.pure-u-sm-1-3
+           [:label.pure-button.pure-u-1.pure-u-sm-1-4
             (or @fn-score "Select Score")
             [:input.file-input
              {:type "file"
@@ -109,7 +133,7 @@ Shortcuts:
               :on-change #(reset! fn-score (h/get-filename (.-target %)))}]]
            
            ;; suggestion file input
-           [:label.pure-button.pure-u-1-2.pure-u-sm-1-3
+           [:label.pure-button.pure-u-1.pure-u-sm-1-4
             (or @fn-suggest "Select Suggestions")
             [:input.file-input
              {:type "file"
@@ -117,14 +141,24 @@ Shortcuts:
               :multiple false
               :ref #(reset! node-suggest %)
               :on-change #(reset! fn-suggest (h/get-filename (.-target %)))}]]
+
+           [:label.pure-button.pure-u-1.pure-u-sm-1-4
+            (or @fn-notes "Select Note File")
+            [:input.file-input
+             {:type "file"
+              :accept ".json"
+              :multiple false
+              :ref #(reset! node-notes %)
+              :on-change #(reset! fn-notes (h/get-filename (.-target %)))}]]
            
-           [:a.pure-button.button-primary.pure-u-1.pure-u-sm-1-3
+           [:a.pure-button.button-primary.pure-u-1.pure-u-sm-1-4
             {:on-click (fn []
                          (h/load-from-file! score (h/get-file @node-score))
-                         (h/load-from-file! state (h/get-file @node-suggest) load-suggestions!))}
+                         (h/load-from-file! state (h/get-file @node-suggest) load-suggestions!)
+                         (h/load-from-file! state (h/get-file @node-notes) load-notes!))}
             "Load Files"]]
           
-          [:div.pure-u-1.pure-u-md-1-5.placeholder]
+          ;;[:div.pure-u-1.pure-u-md-1-5.placeholder]
           
           [:a.pure-button.pure-u-1.pure-u-md-1-5
            {:on-click #(download-annotations! state)}
@@ -164,7 +198,7 @@ Shortcuts:
             (.getElementById js/document "app")))
 
 (defn init! []
-  (ajax/GET "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/data/lexicon.json?token=AAMRVXUKKEL2ZSOAY7LTTLK57SQ2M"
+  (ajax/GET "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/data/lexicon.json"
             {:handler (fn [result] (swap! state assoc :lexicon result))
              :response-format :json
              :format :json
