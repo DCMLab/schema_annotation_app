@@ -92,7 +92,6 @@ Shortcuts:
     
     (let [json (.parse js/JSON json-string)
           notes (reduce add-note {} json)]
-      (pr (notes "note0"))
       (assoc state :notes notes))))
 
 (defn download-annotations! [state]
@@ -239,8 +238,6 @@ Shortcuts:
                                   :corpora corpora
                                   :pieces pieces
                                   :suggested suggested)))
-              ;; :error-handler (fn [{:keys [status text]}]
-              ;;                  (pr "Error: " status text))
               :response-format :json
               :keywords? true
               :format :json
@@ -259,9 +256,12 @@ Shortcuts:
             {:handler #(swap! state assoc :score-xml %)})
   (ajax/GET (str gh-data-url corpus "/groups/" schema "/" piece "_" schema ".json")
             {:handler (fn [result] (swap! state assoc :instances
-                                          (parse-groups (get result :groups)))
-                        (pr (first (first (:instances @state))))
-                        )
+                                          (parse-groups (get result :groups))))
+             :error-handler (fn [{:keys [status status-text]}]
+                              (js/console.log
+                               "Couldn't load suggestions for " piece " (" schema ").")
+                              (swap! state assoc :instances {})
+                              )
              :response-format :json
              :keywords? true})
   (ajax/GET (str gh-data-url corpus "/notelist/" piece ".json")
@@ -341,7 +341,7 @@ Shortcuts:
              
              [:div.pure-u-1.pure-u-md-1-4
               [:div.load-padder]
-              [:a.pure-u-1.pure-button.pure-button-primary
+              [:a.pure-u-1.pure-button.vrv-selected
                {:on-click #(load-gh-files! state crp pc scm)}
                "Load Piece"]]]
              
