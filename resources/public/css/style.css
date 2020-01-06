@@ -48,6 +48,12 @@
 
 /* annotation component */
 
+@media screen and (min-width: 48em) {
+    .gh-input .load-padder {
+        margin-top: 28px;
+    }
+}
+
 .annotations .instance-list {
     list-style-type: none;
     padding: 0;

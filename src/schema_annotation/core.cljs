@@ -1,5 +1,6 @@
 (ns ^:figwheel-hooks schema-annotation.core
-  (:require [reagent.core :as r]
+  (:require [clojure.set :as set]
+            [reagent.core :as r]
             [schema-annotation.verovio :as vrv]
             [schema-annotation.annotate :as annotate]
             [schema-annotation.helpers :as h]
@@ -8,14 +9,16 @@
             [ajax.core :as ajax]
             [intervals.spelled :as i]))
 
-(defonce state (r/atom {:score-xml ""
-                        :instances (sorted-map)
-                        :piece ""
-                        :schema nil
-                        :notes {}
-                        :lexicon nil
-                        :corpora nil
-                        :pieces nil}))
+(defonce state (r/atom {:score-xml nil ;; ""
+                        :notes nil ;; {}
+                        :instances nil ;;(sorted-map)
+                        :lexicon nil ;; {}
+                        :schema nil ;; ""
+                        :corpora nil ;; []
+                        :pieces nil ;; {}
+                        :piece nil ;; ""
+                        :suggested nil ;; []
+                        }))
 
 ;; manual component
 ;;;;;;;;;;;;;;;;;;;
@@ -58,6 +61,11 @@ Shortcuts:
 ;; file IO component
 ;;;;;;;;;;;;;;;;;;;;
 
+(defn parse-groups [json-groups]
+  (into (sorted-map)
+        (for [[i alternatives] (map-indexed vector json-groups)]
+          {i (annotate/new-automatic-instance (js->clj alternatives))})))
+
 (defn load-suggestions! [state json-string]
   (let [json (.parse js/JSON json-string)
         groups (aget json "groups")
@@ -66,10 +74,7 @@ Shortcuts:
     (assoc state
            :piece piece
            :schema schema
-           :instances
-           (into (sorted-map)
-                 (for [[i alternatives] (map-indexed vector groups)]
-                   {i (annotate/new-automatic-instance (js->clj alternatives))})))))
+           :instances (parse-groups groups))))
 
 (defn load-notes! [state json-string]
   (letfn [(parse-frac [obj]
@@ -205,6 +210,7 @@ Shortcuts:
 }")
 
 (def gh-token "88bc5d8a160f6e0025f791c98a92c9320907172f")
+(def gh-data-url "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/data/")
 
 (defn parse-gh-data [result]
   (let [entries (-> result :data :repository :object :entries)
@@ -216,14 +222,23 @@ Shortcuts:
                                 xmldir (first (filter #(= (:name %) "musicxml") subdirs))
                                 names (map :name (-> xmldir :object :entries))
                                 pieces (mapv #(subs % 0 (- (count %) 4)) names)]
-                            [crp-name pieces])))]
-    [corpora-names pieces]))
+                            [crp-name pieces])))
+        suggestions (into {} (for [crp corpora]
+                               (let [crp-name (:name crp)
+                                     subdirs (-> crp :object :entries)
+                                     groupdir (first (filter #(= (:name %) "groups") subdirs))
+                                     suggs (mapv :name (-> groupdir :object :entries))]
+                                 [crp-name suggs])))]
+    [corpora-names pieces suggestions]))
 
 (defn fetch-gh-data! [state]
   (ajax/POST "https://api.github.com/graphql"
              {:handler (fn [result]
-                         (let [[corpora pieces] (parse-gh-data result)]
-                           (swap! state assoc :corpora corpora :pieces pieces)))
+                         (let [[corpora pieces suggested] (parse-gh-data result)]
+                           (swap! state assoc
+                                  :corpora corpora
+                                  :pieces pieces
+                                  :suggested suggested)))
               ;; :error-handler (fn [{:keys [status text]}]
               ;;                  (pr "Error: " status text))
               :response-format :json
@@ -233,22 +248,44 @@ Shortcuts:
               :params {:query gql-query}})
   nil)
 
+(defn load-gh-files! [state corpus piece schema]
+  (swap! state assoc
+         :piece piece
+         :schema schema
+         :notes nil
+         :score-xml nil
+         :instances nil)
+  (ajax/GET (str gh-data-url corpus "/musicxml/" piece ".xml")
+            {:handler #(swap! state assoc :score-xml %)})
+  (ajax/GET (str gh-data-url corpus "/groups/" schema "/" piece "_" schema ".json")
+            {:handler (fn [result] (swap! state assoc :instances
+                                          (parse-groups (get result :groups)))
+                        (pr (first (first (:instances @state))))
+                        )
+             :response-format :json
+             :keywords? true})
+  (ajax/GET (str gh-data-url corpus "/notelist/" piece ".json")
+            {:handler #(swap! state load-notes! %)}))
+
 (defn github-io-comp [state]
   (let [st @state
         visible (r/atom true)
         corpus (r/atom (first (:corpora st)))
         ;; a-pieces (r/atom nil)
         piece (r/atom nil)
-        schema (r/atom (-> st :lexicon keys sort first))]
+        schema (r/atom nil)
+        show-unsuggested (r/atom false)]
     
     (fn [state]
       (let [st @state
             corpora (:corpora st)
-            schemas (sort (keys (:lexicon st)))
             s-pieces (:pieces st)
             crp @corpus
             pieces (get s-pieces crp)
             pc @piece
+            schemas (sort (if @show-unsuggested
+                            (keys (:lexicon st))
+                            (get (:suggested st) crp)))
             scm @schema]
         (when-not crp
           (reset! corpus (first corpora)))
@@ -256,51 +293,70 @@ Shortcuts:
         ;;   (reset! a-pieces (get s-pieces crp)))
         (when-not pc
           (reset! piece (first pieces)))
-        (when-not scm
+        (when (or (not scm) (not (some #{scm} schemas)))
           (reset! schema (first schemas)))
         
-        [:div       
+        [:div.gh-input
          (when @visible
            [:div
             [:h2 "Input / Output"]
             [:form.pure-form.pure-form-stacked.pure-g
-             [:label.pure-u-1.pure-u-md-1-5
+             [:label.pure-u-1.pure-u-md-1-4
               "Corpus"
-              [:select.pure-u-23-24
-               {:on-change #(let [key (.. % -target -value)]
+              [:select.pure-u-1.pure-u-md-23-24
+               {:value crp
+                :on-change #(let [key (.. % -target -value)]
                               (reset! corpus key))}
                (doall (for [c corpora]
                         [:option
-                         {:key c :value c :selected (when (= c crp) "selected")}
+                         {:key c :value c}
                          c]))]]
-             [:label.pure-u-1.pure-u-md-1-5
+             [:label.pure-u-1.pure-u-md-1-4
               "Piece"
-              [:select.pure-u-23-24
-               {:on-change #(reset! piece (.. % -target -value))}
+              [:select.pure-u-1.pure-u-md-23-24
+               {:value pc
+                :on-change #(reset! piece (.. % -target -value))}
                (doall (for [p pieces]
                         [:option
-                         {:key p :value p :selected (when (= p pc) "selected")}
+                         {:key p :value p}
                          p]))]]
-             [:label.pure-u-1.pure-u-md-1-5
+             [:label.pure-u-1.pure-u-md-1-4
               "Schema"
-              [:select.pure-u-23-24
-               {:on-change #(reset! schema (.. % -target -value))}
+              [:span
+               " (show missing "
+               [:input
+                {:type "checkbox"
+                 :checked (when @show-unsuggested "checked")
+                 :on-click #(swap! show-unsuggested not)}]
+               ")"
+               ]
+              [:select.pure-u-1.pure-u-md-23-24
+               {:value scm
+                :on-change #(reset! schema (.. % -target -value))}
                (doall (for [s schemas]
                         [:option
-                         {:key s :value s :selected (when (= s scm) "selected")}
+                         {:key s :value s}
                          s]))]]
              
-             [:div.pure-u-1.pure-u-md-1-5
-              [:a.pure-button.pure-u-23-24
-               "Load Piece"]]
+             [:div.pure-u-1.pure-u-md-1-4
+              [:div.load-padder]
+              [:a.pure-u-1.pure-button.pure-button-primary
+               {:on-click #(load-gh-files! state crp pc scm)}
+               "Load Piece"]]]
              
-             [:div.pure-u-1.pure-u-md-1-5
-              [:a.pure-button.pure-u-23-24
-               {:on-click #(download-annotations! state)}
-               "Download Annotations"]]]
-            [:p "corpus: " crp]
-            [:p "piece: " pc]
-            [:p "schema: " scm]
+            
+            
+            [:div.pure-g
+             [:div.pure-u-md-3-4]
+             [:a.pure-button.pure-u-1.pure-u-md-1-4
+              {:on-click #(download-annotations! state)}
+              "Download Annotations"]]
+             
+             
+             
+            ;; [:p "corpus: " crp]
+            ;; [:p "piece: " pc]
+            ;; [:p "schema: " scm]
             ])
          
          [:a.hide-show
@@ -324,8 +380,9 @@ Shortcuts:
        [github-io-comp state]
 
        (let [lexicon (:lexicon @state)
-             schema (:schema @state)]
-         (when (and  lexicon schema)
+             schema (:schema @state)
+             notes (:notes @state)]
+         (when (and @score notes @instances lexicon schema)
            (let [pattern (h/parse-pattern (get lexicon schema))]
              (if pattern
                [annotate/annotation-comp pattern @score instances]
@@ -338,7 +395,7 @@ Shortcuts:
             (.getElementById js/document "app")))
 
 (defn init! []
-  (ajax/GET "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/data/lexicon.json"
+  (ajax/GET (str gh-data-url "lexicon.json")
             {:handler (fn [result] (swap! state assoc :lexicon result))
              :response-format :json
              :format :json
