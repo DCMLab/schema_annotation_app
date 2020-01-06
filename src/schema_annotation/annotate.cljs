@@ -190,16 +190,17 @@
                   ^{:key ai} [kb/kb-action "shift-up" go-prev-instance]
                   "<"]
                  [:select.instance-select
-                  {:on-change #(let [key (-> % .-target .-value js/parseInt)]
+                  {:value (or ai :none)
+                   :on-change #(let [key (-> % .-target .-value js/parseInt)]
                                  (if (js/Number.isNaN key)
                                    (toggle-active-instance! active-instance nil)
                                    (toggle-active-instance! active-instance key)))}
                   [:option
-                   {:key "none" :value nil :selected (when (= ai nil) "selected")}
+                   {:key "none" :value :none}
                    "none"]
                   (doall (for [[k v] insts]
                            [:option
-                            {:key k :value k :selected (when (= ai k) "selected")}
+                            {:key k :value k}
                             (inc k)]))]
                  [:a.pure-button
                   {:class (when-not next-key "pure-button-disabled")
