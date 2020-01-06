@@ -18,6 +18,7 @@
                         :pieces nil ;; {}
                         :piece nil ;; ""
                         :suggested nil ;; []
+                        :loading false
                         }))
 
 ;; manual component
@@ -251,7 +252,8 @@ Shortcuts:
          :schema schema
          :notes nil
          :score-xml nil
-         :instances nil)
+         :instances nil
+         :loading true)
   (ajax/GET (str gh-data-url corpus "/musicxml/" piece ".xml")
             {:handler #(swap! state assoc :score-xml %)})
   (ajax/GET (str gh-data-url corpus "/groups/" schema "/" piece "_" schema ".json")
@@ -353,8 +355,6 @@ Shortcuts:
               {:on-click #(download-annotations! state)}
               "Download Annotations"]]
              
-             
-             
             ;; [:p "corpus: " crp]
             ;; [:p "piece: " pc]
             ;; [:p "schema: " scm]
@@ -380,13 +380,16 @@ Shortcuts:
        ;;[file-io-comp score state]
        [github-io-comp state]
 
+       (when (:loading state)
+         "Loading...")
+
        (let [lexicon (:lexicon @state)
              schema (:schema @state)
              notes (:notes @state)]
          (when (and @score notes @instances lexicon schema)
+           (swap! state assoc :loading false)
            (let [pattern (h/parse-pattern (get lexicon schema))]
              (if pattern
-               [annotate/annotation-comp pattern @score instances]
                (js/alert (str "Schema " (:schema @state) " not found in the lexicon! Please report this to the developers."))))))
        [kb/keyboard-listener]
        ])))
