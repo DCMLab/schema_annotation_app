@@ -323,12 +323,13 @@ Shortcuts:
              [:label.pure-u-1.pure-u-md-1-4
               "Schema"
               [:span
-               " (show missing "
+               {:style {:float "right"}}
+               " ("
                [:input
                 {:type "checkbox"
                  :checked (when @show-unsuggested "checked")
                  :on-click #(swap! show-unsuggested not)}]
-               ")"
+               " show missing)"
                ]
               [:select.pure-u-1.pure-u-md-23-24
                {:value scm
