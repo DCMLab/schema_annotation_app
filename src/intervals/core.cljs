@@ -62,13 +62,17 @@
   (to-midi [_] (to-midi _interval))
   
   Object
-  (toString [_] (notate-pitch _interval)))
+  (toString [_] (notate-pitch _interval))
+
+  IComparable
+  (-compare [p1 p2]
+    (compare (interval p1) (interval p2))))
 
 (defn make-pitch [interval]
   (Pitch. interval))
 
 (defn p-p [p1 p2]
-  (p-i p1 (interval p2)))
+  (i- (interval p1) (interval p2)))
 
 (defn p-to [p1 p2]
   (p-p p2 p1))

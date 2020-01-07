@@ -331,8 +331,7 @@ Shortcuts:
                 {:type "checkbox"
                  :checked (when @show-unsuggested "checked")
                  :on-click #(swap! show-unsuggested not)}]
-               " show missing)"
-               ]
+               " show missing)"]
               [:select.pure-u-1.pure-u-md-23-24
                {:value scm
                 :on-change #(reset! schema (.. % -target -value))}
@@ -346,8 +345,6 @@ Shortcuts:
               [:a.pure-u-1.pure-button.vrv-selected
                {:on-click #(load-gh-files! state crp pc scm)}
                "Load Piece"]]]
-             
-            
             
             [:div.pure-g
              [:div.pure-u-md-3-4]
@@ -390,6 +387,7 @@ Shortcuts:
            (swap! state assoc :loading false)
            (let [pattern (h/parse-pattern (get lexicon schema))]
              (if pattern
+               [annotate/annotation-comp pattern notes @score instances]
                (js/alert (str "Schema " (:schema @state) " not found in the lexicon! Please report this to the developers."))))))
        [kb/keyboard-listener]
        ])))

@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [reagent.ratom :as ratom]
             [schema-annotation.verovio :as vrv]
+            [schema-annotation.helpers :as h]
             [reagent-keybindings.keyboard :as kb]
             [clojure.string :as str]))
 
@@ -50,17 +51,23 @@
      ([k v] (swap! instance set-stages v)))
    []))
 
-(defn validate-instance [pattern instance]
+(defn validate-instance [pattern notes instance]
   (when instance
-    (cond
-      (some empty? instance)
-      "contains empty stages"
-      (not= (count pattern) (count instance))
-      "wrong number of stages (internal error)"
-      (not-every? true? (map #(= (count %1) (count %2)) pattern instance))
-      "wrong number of notes in some stage"
-      ;; TODO: validate against actual interval pattern
-      :else "")))
+    (let [schema (h/lookup-schema instance notes)]
+      (cond
+        (some empty? instance)
+        "contains empty stages"
+        (not= (count pattern) (count instance))
+        "wrong number of stages (internal error)"
+        (not-every? true? (map #(= (count %1) (count %2)) pattern instance))
+        "wrong number of notes in some stage"
+        (not= pattern (h/rel-schema schema))
+        "wrong interval pattern"
+        (not (h/stages-separate? schema))
+        "stages overlap"
+        (h/potential-overlap? schema)
+        "stages potentially overlap (check manually)"
+        :else nil))))
 
 ;; inner annotation component
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -114,7 +121,7 @@
 (defn next-alt [instance]
   (set-alt instance (inc (:alt instance))))
 
-(defn annotation-inner [pattern piece-xml active-instance instances]
+(defn annotation-inner [pattern notes piece-xml active-instance instances]
   ;; local state / variables
   (let [active-stage (r/atom nil)
         ;; def-controls (assoc vrv/verovio-controls :data piece-xml :allow-select false)
@@ -128,7 +135,7 @@
     (ratom/run! (reset! jump @jump-candidate))
     
     ;; render function
-    (fn [pattern piece-xml active-instance instances]
+    (fn [pattern notes piece-xml active-instance instances]
       
       ;; local state
       (let [current-instance (current-instance-cursor active-instance instances)
@@ -173,7 +180,7 @@
               [:legend "Instance "
                [:span.validation-error
                 (when-not (:auto @current-instance)
-                  (validate-instance pattern (:stages @current-instance)))]]
+                  (validate-instance pattern notes (:stages @current-instance)))]]
               (let [insts @instances
                     ai @active-instance
                     inst (get insts ai)
@@ -314,12 +321,12 @@
 ;; outer annotation component
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn annotation-comp [pattern piece-xml instances]
+(defn annotation-comp [pattern notes piece-xml instances]
   ;; local state /variables
   (let [active-instance (r/atom nil)]
     
     ;; render function
-    (fn [pattern piece-xml instances]
+    (fn [pattern notes piece-xml instances]
       ;; helper functions on local state
       (letfn [(add-instance! []
                 (swap! instances
@@ -338,7 +345,7 @@
          ;; [:p (str @instances)]
          
          ;; inner annotation component
-         [annotation-inner pattern piece-xml active-instance instances]
+         [annotation-inner pattern notes piece-xml active-instance instances]
          
          ;; instance header
          [:form.pure-form.pure-g
@@ -365,7 +372,7 @@
                    (if (:auto ins) "(automatic)" "(manual)") " "
                    [:span.validation-error
                     (when-not (:auto ins)
-                      (validate-instance pattern (:stages ins)))]]]
+                      (validate-instance pattern notes (:stages ins)))]]]
                  [:div.pure-u-1.pure-u-md-3-8
                   [:div.pure-u-1-3
                    [:a.pure-button.pure-u-23-24
