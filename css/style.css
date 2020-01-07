@@ -131,34 +131,31 @@ select.instance-select {
     
 /* } */
 
-.verovio-cmp.loading {
+.loading {
     position: relative;
-    min-height: 40px;
+    min-height: 100px;
+    width: 100%;
 }
 
-.verovio-cmp.loading::before {
-    border: solid 3px #eee;
-    border-bottom-color: #EF6565;
-    border-radius: 50%;
-    content: "";
-    height: 40px;
-    left: 50%;
-    position: absolute;
-    top: 50%;
-    transform: translate3d(-50%, -50%, 0);
-    width: 40px;
-}
-
-.verovio-cmp.loading:after {
+.loading:after {
   content: " ";
-  z-index: 10;
   display: block;
-  position: absolute;
-  height: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.5);
+  width: 64px;
+  height: 64px;
+  margin: 8px auto;
+  border-radius: 50%;
+  border: 6px solid #000;
+  border-color: #000 transparent #000 transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* colorscheme: category10 from D3 */
