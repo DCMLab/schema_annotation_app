@@ -176,18 +176,11 @@
              
              [:div.pure-u-1.pure-u-md-1-4
               [:div.load-padder]
-              [:a.pure-u-1.pure-button.vrv-selected
+              [:a.pure-u-1.pure-button.button-primary
                {:on-click (fn []
                             (load-gh-files! state crp pc scm)
                             (reset! visible false))}
                "Load Piece"]]]
-            
-            [:div.pure-g
-             [:div.pure-u-md-3-4]
-             [:a.pure-button.pure-u-1.pure-u-md-1-4
-              {:on-click #(io/download-annotations! @state)}
-              "Download Annotations"]]
-             
             ;; [:p "corpus: " crp]
             ;; [:p "piece: " pc]
             ;; [:p "schema: " scm]
@@ -196,4 +189,4 @@
          [:a.hide-show
           {:href "javascript:void(0)"
            :on-click #(swap! visible not)}
-          (if @visible "Hide IO" "Show IO")]]))))
+          (if @visible "Hide file selection" "Show file selection")]]))))

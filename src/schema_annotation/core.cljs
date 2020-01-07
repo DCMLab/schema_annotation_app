@@ -62,6 +62,12 @@ Shortcuts:
          :on-click #(swap! visible not)}
         (if @visible "Hide Manual" "Show Manual")]])))
 
+(defn download-comp [state]
+  [:div.pure-g
+   [:a.pure-button.button-primary.pure-u-1.pure-u-md-1-4
+    {:on-click #(io/download-annotations! @state)}
+    "Download Annotations"]])
+
 ;; main app component
 ;;;;;;;;;;;;;;;;;;;;;
 
@@ -76,7 +82,7 @@ Shortcuts:
        
        ;;[file-io-comp score state]
        [gh/github-io-comp state]
-
+       
        (when (:loading @state)
          [:div.loading])
        
@@ -87,7 +93,9 @@ Shortcuts:
            (swap! state assoc :loading false)
            (let [pattern (h/parse-pattern (get lexicon schema))]
              (if pattern
-               [annotate/annotation-comp pattern notes @score instances]
+               [:div
+                [annotate/annotation-comp pattern notes @score instances]
+                [download-comp state]]
                (js/alert (str "Schema " (:schema @state) " not found in the lexicon! Please report this to the developers."))))))
        [kb/keyboard-listener]])))
 
