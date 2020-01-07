@@ -177,7 +177,9 @@
              [:div.pure-u-1.pure-u-md-1-4
               [:div.load-padder]
               [:a.pure-u-1.pure-button.vrv-selected
-               {:on-click #(load-gh-files! state crp pc scm)}
+               {:on-click (fn []
+                            (load-gh-files! state crp pc scm)
+                            (reset! visible false))}
                "Load Piece"]]]
             
             [:div.pure-g
