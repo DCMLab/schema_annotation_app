@@ -62,21 +62,6 @@
              (swap! atom f (.. e -target -result))))
      (.readAsText reader file))))
 
-;; others
-;;;;;;;;;
-
-(defn download-as-json! [value filename]
-  (let [blob (js/Blob. #js [(.stringify js/JSON (clj->js value))]
-                       #js {:type "application/json"})
-        link (.createElement js/document "a")
-        url (.createObjectURL js/URL blob)]
-    (set! (.-href link) url)
-    (set! (.-download link) filename)
-    (.appendChild (.-body js/document) link)
-    (.click link)
-    (.removeChild (.-body js/document) link)
-    (.revokeObjectURL js/URL url)))
-
 ;; schemata
 ;;;;;;;;;;;
 
