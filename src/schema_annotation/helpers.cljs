@@ -74,10 +74,12 @@
 
 (defn lookup-schema
   "Substitutes note IDs in `schema` by actual notes taken from `notes`.
-  Sorts each stage by pitch."
+  Sorts each stage by pitch.
+  Returns `nil` if an ID cannot be found in `note`."
   [schema notes]
   (let [mapped (map-schema #(assoc (notes %) :id %) schema)]
-    (mapv #(vec (sort-by :pitch %)) mapped)))
+    (when-not (some #(some (comp nil? :pitch) %) mapped)
+      (mapv #(vec (sort-by :pitch %)) mapped))))
 
 (defn schema-ids
   "Replaces the notes in `schema` with their IDs."

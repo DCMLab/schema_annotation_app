@@ -61,6 +61,8 @@
         "wrong number of stages (internal error)"
         (not-every? true? (map #(= (count %1) (count %2)) pattern instance))
         "wrong number of notes in some stage"
+        (not schema)
+        "invalid note selected (e.g. after a tie)"
         (not= pattern (h/rel-schema schema))
         "wrong interval pattern"
         (not (h/stages-separate? schema))
