@@ -53,18 +53,20 @@
 
 (defn validate-instance [pattern notes instance]
   (when instance
-    (let [schema (h/lookup-schema instance notes)]
+    (let [schema (h/lookup-schema instance notes)
+          match-results (h/match-schema (h/rel-schema schema) pattern)]
+      (pr match-results)
       (cond
+        (not schema)
+        "invalid note selected (e.g. after a tie)"
         (some empty? instance)
         "contains empty stages"
         (not= (count pattern) (count instance))
         "wrong number of stages (internal error)"
-        (not-every? true? (map #(= (count %1) (count %2)) pattern instance))
-        "wrong number of notes in some stage"
-        (not schema)
-        "invalid note selected (e.g. after a tie)"
-        (not= pattern (h/rel-schema schema))
-        "wrong interval pattern"
+        ;; (not-every? true? (map #(= (count %1) (count %2)) pattern instance))
+        ;; "wrong number of notes in some stage"
+        (not-every? true? match-results) ;; selection doesn't match?
+        (h/match-to-error-msg match-results) ;; show the appropriate error message
         (not (h/stages-separate? schema))
         "stages overlap"
         (h/potential-overlap? schema)

@@ -92,6 +92,61 @@
   (let [ref (get-in schema [0 0 :pitch])]
     (map-schema #(i/ic (i/p-p (:pitch %) ref)) schema)))
 
+(defn mark-implicit [prev-stage stage]
+  (if prev-stage
+    ;; make note optional if it stays wrt the previous stages
+    (mapv (fn [note prev] {:int note :opt (= note prev)}) stage prev-stage)
+    (mapv (fn [note] {:int note :opt false}) stage)))
+
+(defn match-schema
+  "Tries to match `schema` to `pattern`.
+  Returns a list of stages which contains for each stage one of the following return values:
+  `true`, if the stage matches;
+  `:toofew`, if the stage has too few notes;
+  `:toomany`, if the stage has too many notes;
+  `:mismatch`, if the stage does not match the pattern."
+  [schema pattern]
+  ;; find out which notes may be implicit (because present/held over from the previous stage)
+  (let [pattern-imp (mapv mark-implicit (cons nil pattern) pattern)]
+    (pr pattern-imp)
+    ;; try to match using backtracking
+    (letfn [(find-issues [schema-stage pattern-stage]
+              (let [nexts (first schema-stage)
+                    nextp (first pattern-stage)
+                    rests (rest schema-stage)
+                    restp (rest pattern-stage)]
+                (cond
+                  (and (nil? nexts) (nil? nextp)) ;; nothing left?
+                  true ;; match!
+                  (and (some? nexts) (nil? nextp)) ;; notes left in instance but not in pattern?
+                  :toomany ;; too many notes in instance
+                  (some? nextp) ;; notes left in pattern?
+                  (let [direct-matching (when (= nexts (:int nextp))
+                                          (find-issues rests restp))]
+                    (if (:opt nextp) ;; -> pattern note optional?
+                      ;; opt? either match directly or skip
+                      (if (true? direct-matching)
+                        true
+                        (find-issues schema-stage restp))
+                       ;; not opt? must match directly
+                      (or direct-matching (if (nil? nexts) :toofew :mismatch)))))))]
+      (map find-issues schema pattern-imp))))
+
+(defn match-to-error-msg
+  "Returns a string describing the results of matching a schema to a pattern per stage."
+  [stages]
+  (some identity
+   (map-indexed (fn [i err]
+                  (when-not (true? err)
+                    (str "stage " (inc i) " "
+                         (case err
+                           true nil
+                           :toomany "has too many notes"
+                           :toofew "has too few notes"
+                           :mismatch "doesn't match"
+                           "has an unknown problem"))))
+                stages)))
+
 (defn stages-separate?
   "Returns true iff there exists a choice of onsets and offsets
   such that the stages of `schema` do not overlap."
