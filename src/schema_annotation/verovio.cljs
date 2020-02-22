@@ -4,19 +4,6 @@
             [clojure.string :as str]
             [schema-annotation.helpers :as h]))
 
-
-
-(def verovio-controls
-  {:page 1
-   :highlighted []
-   :allow-select true})
-
-(defn next-page [page pages]
-  (min (inc page) pages))
-
-(defn prev-page [page pages]
-  (max (dec page) 1))
-
 (def verovio-options
   {:scale 50
    :pageWidth 2048
@@ -31,26 +18,29 @@
     (.setOptions tk (clj->js options))
     tk))
 
-(defn load-data! [tk data]
+(defn load-all-pages! [tk data]
   (js/tk.loadData data)
-  (js/tk.getPageCount))
+  (let [pages (js/tk.getPageCount)]
+    (doall
+     (for [page (range 1 (inc pages))]
+       (js/tk.renderToSVG page)))))
 
-(defn page-svg [tk page]
-  (js/tk.renderToSVG page))
-
-(defn jump-to-page! [tk jump-atom page-atom]
+(defn scroll-to-note! [dom-node jump-atom]
   (let [jump @jump-atom]
-    (if (coll? jump)
-      (when-not (empty? jump)
-        (swap! page-atom
-               (fn [page]
-                 (let [elt-pages
-                       (into {} (for [elt jump]
-                                  [elt (js/tk.getPageWithElement elt)]))]
-                   (if (not-any? #(= page %) (vals elt-pages))
-                     (get elt-pages (first jump))
-                     page)))))
-      (reset! page-atom (js/tk.getPageWithElement jump))))
+    (let [pad-top 50
+          container-top (.. dom-node getBoundingClientRect -top)
+          container-scroll (.. dom-node -scrollTop)
+          elt-tops (for [j jump]
+                     (.. js/document (getElementById j) getBoundingClientRect -top))
+          min-elt-top (apply min elt-tops)
+          max-elt-top (apply max elt-tops)
+          offset (- min-elt-top container-top)
+          height (. dom-node -clientHeight)]
+      (when (or (< offset 0)
+                (> offset (- height pad-top))
+                (and (< (- min-elt-top max-elt-top) (+ pad-top 10))
+                     (> max-elt-top (+ container-top height -10))))
+        (aset dom-node "scrollTop" (+ container-scroll (- offset pad-top))))))
   (reset! jump-atom nil))
 
 (defn toggle-in-selection [sel elt]
@@ -61,14 +51,14 @@
 (defn add-select-handlers! [dom-node selected]
   (letfn [(toggle-select! [id]
             (swap! selected toggle-in-selection id))]
-    (let [notes (.. js/d3 (select dom-node) (select "svg") (selectAll ".note"))]
+    (let [notes (.. js/d3 (select dom-node) (selectAll "svg") (selectAll ".note"))]
       (. notes on "click" (fn [] (this-as this
                                    (toggle-select! (.-id this))))))))
 
 (defn reset-note-classes! [dom-node]
   (.. js/d3
       (select dom-node)
-      (select "svg")
+      (selectAll "svg")
       (selectAll ".note")
       (attr "class" "note")))
 
@@ -79,25 +69,21 @@
         (when (not= nil note)
           (.. note -classList (add class)))))))
 
-(defn verovio-comp [data selected allow-select highlighted page pages jump in-opts]
+(defn verovio-comp [data selected allow-select highlighted jump in-opts]
   (let [options (conj verovio-options in-opts)
         tk (create-tk! options)
         data-atom (r/atom data)
-        pgs (reagent.ratom/run!
-             (reset! pages (load-data! tk @data-atom)))
-        svg (reagent.ratom/run! @pages (page-svg tk @page))]
+        svgs (reagent.ratom/run! (load-all-pages! tk @data-atom))]
     
-    (load-data! tk data)
     (r/create-class
      {:reagent-render
-      (fn [data selected allow-select highlighted page pages jump in-opts]
+      (fn [data selected allow-select highlighted jump in-opts]
         (reset! data-atom data)
-        (when @jump (jump-to-page! tk jump page))
         ;; ensures update on every change of controls or selected
-        (let [atoms (do @selected @highlighted @page)]
+        (let [atoms (do @selected @highlighted @svgs)]
           [:div.verovio-cmp
            {:class (when @allow-select " allow-select")
-            :dangerouslySetInnerHTML {:__html @svg}}]))
+            :dangerouslySetInnerHTML {:__html (str/join "\n" @svgs)}}]))
       
       :component-did-update
       (fn [comp]
@@ -108,7 +94,8 @@
             (add-class-to-notes! comp-dom @selected "vrv-selected"))
           (doseq [[i group] (map-indexed vector @highlighted)]
             ;; TODO: make color modulo an option
-            (add-class-to-notes! comp-dom group (str "vrv-highlighted-" (mod i 9))))))
+            (add-class-to-notes! comp-dom group (str "vrv-highlighted-" (mod i 9))))
+          (when @jump (scroll-to-note! comp-dom jump))))
       
       :display-name "verovio-comp"})))
 
@@ -117,21 +104,11 @@
         selected (r/atom #{})
         allow-select (r/atom true)
         highlighted (r/atom [])
-        page (r/atom 1)
-        pages (r/atom 0)
         jump (r/atom nil)
         options {}]
     (fn []
       [:div
        [:form.pure-form.pure-g
-        [:div.pure-u-1-4
-         [:a.pure-button
-          {:disabled (<= @page 1)
-           :on-click #(swap! page prev-page @pages)} "<<"]
-         " " @page " / " @pages " "
-         [:a.pure-button
-          {:disabled (>= @page @pages)
-           :on-click #(swap! page next-page @pages)} ">>"]]
         [:div.pure-u-1-2
          [:input.pure-u-23-24
           {:type "text"
@@ -159,4 +136,4 @@
          {:disabled (empty? @selected)
           :on-click #(swap! selected empty)}
          "Clear Selection"]]
-       [verovio-comp selected allow-select highlighted page pages jump options]])))
+       [verovio-comp selected allow-select highlighted jump options]])))

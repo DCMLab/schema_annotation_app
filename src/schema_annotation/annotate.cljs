@@ -55,7 +55,6 @@
   (when instance
     (let [schema (h/lookup-schema instance notes)
           match-results (h/match-schema (h/rel-schema schema) pattern)]
-      (pr match-results)
       (cond
         (not schema)
         "invalid note selected (e.g. after a tie)"
@@ -128,9 +127,6 @@
 (defn annotation-inner [pattern notes piece-xml active-instance instances]
   ;; local state / variables
   (let [active-stage (r/atom nil)
-        ;; def-controls (assoc vrv/verovio-controls :data piece-xml :allow-select false)
-        page (r/atom 1)
-        pages (r/atom 0)
         jump (r/atom nil)
         jump-candidate (r/atom nil)
         options {}]
@@ -244,7 +240,7 @@
              (if (:auto @current-instance)
                
                ;; automatic instance interface
-               [:form.pure-form.pure-u-1.pure-u-sm-2-3.pure-u-md-3-4.pure-u-lg-2-5
+               [:form.pure-form.pure-u-1.pure-u-lg-3-5
                 [:legend "Suggestion"]
                 (let [inst @current-instance
                       alt (:alt inst)
@@ -276,12 +272,10 @@
                      :on-change (fn [ev]
                                   (let [new-alt (-> ev .-target .-valueAsNumber)]
                                     (swap! current-instance set-alt (dec new-alt))))}]
-                   ])
-                ]
+                   ])]
                
                ;; manual instance interface
-               [:form.pure-form.pure-u-1.pure-u-sm-2-3.pure-u-md-3-4.pure-u-lg-2-5
-                ;; TODO: deselect all button
+               [:form.pure-form.pure-u-1.pure-u-lg-3-5
                 [:legend "Stage"]
                 [:div.pure-button-group
                  {:role "toolbar"}
@@ -297,30 +291,12 @@
                         :class (str sel-class " " enabled-class)
                         :on-click click}
                        [kb/kb-action (str (inc i)) click]
-                       (inc i)])))]
-                ])
-             
-             ;; page selection
-             [:form.pure-form.pure-u-1.pure-u-sm-1-3.pure-u-md-1-4.pure-u-lg-1-5
-              [:legend "Page"]
-              [:div
-               [:a.pure-button
-                {:disabled (<= @page 1)
-                 :on-click #(swap! page vrv/prev-page @pages)}
-                [kb/kb-action "left" #(swap! page vrv/prev-page @pages)]
-                "<"]
-               " " @page " / " @pages " "
-               [:a.pure-button
-                {:disabled (>= @page @pages)
-                 :on-click #(swap! page vrv/next-page @pages)}
-                [kb/kb-action "right" #(swap! page vrv/next-page @pages)]
-                ">"]]]
-             
+                       (inc i)])))]])
+                          
              ;; score (verovio)
-             ;; TODO: jump
              [:div.pure-u-1
               [vrv/verovio-comp piece-xml selected allow-select
-               highlighted page pages jump options]]]))))))
+               highlighted jump options]]]))))))
 
 ;; outer annotation component
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

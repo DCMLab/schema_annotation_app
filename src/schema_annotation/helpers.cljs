@@ -108,7 +108,6 @@
   [schema pattern]
   ;; find out which notes may be implicit (because present/held over from the previous stage)
   (let [pattern-imp (mapv mark-implicit (cons nil pattern) pattern)]
-    (pr pattern-imp)
     ;; try to match using backtracking
     (letfn [(find-issues [schema-stage pattern-stage]
               (let [nexts (first schema-stage)

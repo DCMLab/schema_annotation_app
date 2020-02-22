@@ -114,6 +114,11 @@ select.instance-select {
 
 /* verovio component: note selection and highlight styling */
 
+.verovio-cmp {
+    height: 600px;
+    overflow: scroll;
+}
+
 .verovio-cmp svg {
     width: 100%;
     height: auto;

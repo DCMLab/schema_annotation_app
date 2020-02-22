@@ -40,7 +40,6 @@
 1. When you are happy with your annotations, click on \"Download Annotations\"
 
 Shortcuts:
-- `left`/`right` for turning pages.
 - `shift-left`/`-right` for selecting alternative suggestions
 - `1`...`9` for selecting / deselecting a stage.
 - `shift-up`/`-down` for selecting the previous / next instance.
