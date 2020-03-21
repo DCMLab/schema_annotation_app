@@ -19,6 +19,7 @@
                         :schema nil ;; ""
                         :corpora nil ;; []
                         :pieces nil ;; {}
+                        :corpus nil ;; ""
                         :piece nil ;; ""
                         :suggested nil ;; []
                         :loading false
@@ -88,7 +89,7 @@ Shortcuts:
        (let [lexicon (:lexicon @state)
              schema (:schema @state)
              notes (:notes @state)]
-         (when (and @score notes @instances lexicon schema)
+         (when (and @score notes)
            (swap! state assoc :loading false)
            (let [pattern (h/parse-pattern (get lexicon schema))]
              (if pattern

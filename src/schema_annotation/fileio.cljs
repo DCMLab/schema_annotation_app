@@ -60,7 +60,7 @@
            [:a.pure-button.button-primary.pure-u-1.pure-u-sm-1-4
             {:on-click (fn []
                          (h/load-from-file! score (h/get-file @node-score))
-                         (h/load-from-file! state (h/get-file @node-suggest) io/load-suggestions!)
+                         ;;(h/load-from-file! state (h/get-file @node-suggest) io/load-suggestions!)
                          (h/load-from-file! state (h/get-file @node-notes) io/load-notes!))}
             "Load Files"]]
           

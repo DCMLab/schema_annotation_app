@@ -80,28 +80,48 @@
               :params {:query gql-query}})
   nil)
 
-(defn load-gh-files! [state corpus piece schema]
+(defn load-piece! [state corpus piece]
   (pr "load")
   (swap! state assoc
+         :corpus corpus
          :piece piece
-         :schema schema
          :notes nil
          :score-xml nil
          :instances nil
          :loading true)
   (ajax/GET (str gh-data-url corpus "/musicxml/" piece ".xml")
-            {:handler #(swap! state assoc :score-xml %)})
-  (ajax/GET (str gh-data-url corpus "/groups/" schema "/" piece "_" schema ".json")
-            {:handler (fn [result] (swap! state assoc :instances
-                                          (io/parse-groups (get result :groups))))
-             :error-handler (fn [{:keys [status status-text]}]
-                              (js/console.log
-                               "Couldn't load suggestions for " piece " (" schema ").")
-                              (swap! state assoc :instances {}))
-             :response-format :json
-             :keywords? true})
+            {:handler #(swap! state assoc
+                              :score-xml %)})
   (ajax/GET (str gh-data-url corpus "/notelist/" piece ".json")
             {:handler #(swap! state assoc :notes (io/parse-notes %))}))
+
+(defn load-suggestions! [state replace]
+  (let [st @state
+        corpus (:corpus st)
+        piece (:piece st)
+        schema (:schema st)]
+    (ajax/GET (str gh-data-url corpus "/groups/" schema "/" piece "_" schema ".json")
+              {:handler (fn [result]
+                          (swap! state
+                                 (fn [st] 
+                                   (let [max-old (reduce max (keys (:instances st)))
+                                         offset (if (and max-old (not replace))
+                                                  (inc max-old) 0)
+                                         new-instances (io/parse-groups (get result :groups)
+                                                                        offset)]
+                                     (pr offset)
+                                     (if replace
+                                       (assoc st :instances new-instances)
+                                       (update st :instances concat new-instances))))))
+               :error-handler (fn [{:keys [status status-text]}]
+                                (js/console.log
+                                 "Couldn't load suggestions for " piece " (" schema ").")
+                                (swap! state assoc :instances {}))
+               :response-format :json
+               :keywords? true})))
+
+(defn set-schema! [state schema]
+  (swap! state assoc :schema schema))
 
 (defn github-io-comp [state]
   (let [st @state
@@ -110,7 +130,9 @@
         ;; a-pieces (r/atom nil)
         piece (r/atom nil)
         schema (r/atom nil)
-        show-unsuggested (r/atom false)]
+        load-open (r/atom nil) ;; nil, :suggestions, :annot-gh, :annot-up
+        ;;show-unsuggested (r/atom false)
+        ]
     
     (fn [state]
       (let [st @state
@@ -119,9 +141,7 @@
             crp @corpus
             pieces (get s-pieces crp)
             pc @piece
-            schemas (sort (if @show-unsuggested
-                            (keys (:lexicon st))
-                            (get (:suggested st) crp)))
+            schemas (sort (keys (:lexicon st)))
             scm @schema]
         (when-not crp
           (reset! corpus (first corpora)))
@@ -137,6 +157,9 @@
            [:div
             [:h2 "Input / Output"]
             [:form.pure-form.pure-form-stacked.pure-g
+             
+             ;; first row: loading a piece
+             
              [:label.pure-u-1.pure-u-md-1-4
               "Corpus"
               [:select.pure-u-1.pure-u-md-23-24
@@ -156,16 +179,20 @@
                         [:option
                          {:key p :value p}
                          p]))]]
+             
+             [:div.pure-u-md-1-4]
+             
+             [:div.pure-u-1.pure-u-md-1-4
+              [:div.load-padder]
+              [:a.pure-u-1.pure-button.button-primary
+               {:on-click (fn []
+                            (load-piece! state crp pc))}
+               "Load Piece"]]
+             
+             ;; second row: selecting a schema
+             
              [:label.pure-u-1.pure-u-md-1-4
               "Schema"
-              [:span
-               {:style {:float "right"}}
-               " ("
-               [:input
-                {:type "checkbox"
-                 :checked @show-unsuggested
-                 :on-click #(swap! show-unsuggested not)}]
-               " show missing)"]
               [:select.pure-u-1.pure-u-md-23-24
                {:value scm
                 :on-change #(reset! schema (.. % -target -value))}
@@ -174,13 +201,51 @@
                          {:key s :value s}
                          s]))]]
              
+             [:div.pure-u-1.pure-u-md-1-2
+              [:div.load-padder]
+              "Current Schema: "
+              (:schema st)]
+             
              [:div.pure-u-1.pure-u-md-1-4
               [:div.load-padder]
               [:a.pure-u-1.pure-button.button-primary
                {:on-click (fn []
-                            (load-gh-files! state crp pc scm)
-                            (reset! visible false))}
-               "Load Piece"]]]
+                            (swap! state assoc :schema @schema))}
+               "Set Schema"]]
+
+             ;; third row: loading instances
+             
+             (let [c (:corpus st)
+                    s (:schema st)
+                    p (:piece st)
+                    in (some #{s} (get-in st [:suggested c]))
+                    disabled (not (and p c s in))
+                    open (= @load-open :suggestions)]
+               [:div.pure-u-1.pure-u-md-1-4
+                [:a.pure-u-1.pure-u-md-23-24.pure-button.button-primary
+                 {:disabled disabled
+                  :class (if open "pure-button-active" "")
+                  :on-click #(swap! load-open (fn [lo] (if open nil :suggestions)))}
+                 "Load Suggestions"]
+                (when (and (not disabled) open)
+                  [:div.pure-u-1.pure-u-md-23-24.pure-group
+                   [:a.pure-button.pure-u-1
+                    {:on-click (fn []
+                                 (load-suggestions! state true)
+                                 (reset! load-open nil))}
+                    "Replace Other Instances"]
+                   [:a.pure-button.pure-u-1
+                    {:on-click (fn []
+                                 (load-suggestions! state false)
+                                 (reset! load-open nil))}
+                    "Add To Instances"]
+                   [:a.pure-button.pure-u-1
+                    {:on-click #(reset! load-open nil)}
+                    "Cancel"]]
+                  )
+                ])
+             ]
+            
             ;; [:p "corpus: " crp]
             ;; [:p "piece: " pc]
             ;; [:p "schema: " scm]

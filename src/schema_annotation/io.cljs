@@ -6,10 +6,11 @@
 ;; parsing loaded files
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn parse-groups [json-groups]
+(defn parse-groups [json-groups start-index]
   (into (sorted-map)
         (for [[i alternatives] (map-indexed vector json-groups)]
-          {i (annotate/new-automatic-instance (js->clj alternatives))})))
+          {(+ i start-index)
+           (annotate/new-automatic-instance (js->clj alternatives))})))
 
 (defn load-suggestions! [state json-string]
   (let [json (.parse js/JSON json-string)
@@ -19,7 +20,7 @@
     (assoc state
            :piece piece
            :schema schema
-           :instances (parse-groups groups))))
+           :instances (parse-groups groups 0))))
 
 (defn parse-notes [json-string]
   (letfn [(parse-frac [obj]
