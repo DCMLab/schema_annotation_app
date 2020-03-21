@@ -81,7 +81,6 @@
   nil)
 
 (defn load-piece! [state corpus piece]
-  (pr "load")
   (swap! state assoc
          :corpus corpus
          :piece piece
@@ -109,14 +108,40 @@
                                                   (inc max-old) 0)
                                          new-instances (io/parse-groups (get result :groups)
                                                                         offset)]
-                                     (pr offset)
                                      (if replace
                                        (assoc st :instances new-instances)
                                        (update st :instances concat new-instances))))))
                :error-handler (fn [{:keys [status status-text]}]
-                                (js/console.log
-                                 "Couldn't load suggestions for " piece " (" schema ").")
-                                (swap! state assoc :instances {}))
+                                (let [msg (str "Couldn't load suggestions for "
+                                               piece " (" schema ").")]
+                                  (js/console.log msg)
+                                  (js/alert msg)))
+               :response-format :json
+               :keywords? true})))
+
+(defn load-annotations! [state replace]
+  (let [st @state
+        corpus (:corpus st)
+        piece (:piece st)
+        schema (:schema st)]
+    (ajax/GET (str gh-data-url corpus "/annotations/" schema "/" piece "_" schema ".json")
+              {:handler (fn [result]
+                          (swap! state
+                                 (fn [st] 
+                                   (let [max-old (reduce max (keys (:instances st)))
+                                         offset (if (and max-old (not replace))
+                                                  (inc max-old) 0)
+                                         new-instances (io/parse-instances
+                                                        (get result :instances)
+                                                        offset)]
+                                     (if replace
+                                       (assoc st :instances new-instances)
+                                       (update st :instances concat new-instances))))))
+               :error-handler (fn [{:keys [status status-text]}]
+                                (let [msg (str "Couldn't load annotations for "
+                                               piece " (" schema ").")]
+                                  (js/console.log msg)
+                                  (js/alert msg)))
                :response-format :json
                :keywords? true})))
 
@@ -156,99 +181,122 @@
          (when @visible
            [:div
             [:h2 "Input / Output"]
-            [:form.pure-form.pure-form-stacked.pure-g
+            [:div.pure-g
              
              ;; first row: loading a piece
              
-             [:label.pure-u-1.pure-u-md-1-4
-              "Corpus"
-              [:select.pure-u-1.pure-u-md-23-24
-               {:value crp
-                :on-change #(let [key (.. % -target -value)]
-                              (reset! corpus key))}
-               (doall (for [c corpora]
-                        [:option
-                         {:key c :value c}
-                         c]))]]
-             [:label.pure-u-1.pure-u-md-1-4
-              "Piece"
-              [:select.pure-u-1.pure-u-md-23-24
-               {:value pc
-                :on-change #(reset! piece (.. % -target -value))}
-               (doall (for [p pieces]
-                        [:option
-                         {:key p :value p}
-                         p]))]]
-             
-             [:div.pure-u-md-1-4]
-             
-             [:div.pure-u-1.pure-u-md-1-4
-              [:div.load-padder]
-              [:a.pure-u-1.pure-button.button-primary
+             [:form.pure-form.pure-form-stacked.pure-u-1.pure-u-md-1-2
+              [:label.pure-u-1.pure-u-md-1-2
+               "Corpus"
+               [:select.pure-u-1.pure-u-md-23-24
+                {:value crp
+                 :on-change #(let [key (.. % -target -value)]
+                               (reset! corpus key))}
+                (doall (for [c corpora]
+                         [:option
+                          {:key c :value c}
+                          c]))]]
+              [:label.pure-u-1.pure-u-md-1-2
+               "Piece"
+               [:select.pure-u-1.pure-u-md-23-24
+                {:value pc
+                 :on-change #(reset! piece (.. % -target -value))}
+                (doall (for [p pieces]
+                         [:option
+                          {:key p :value p}
+                          p]))]]
+              
+              [:a.pure-button.button-primary
                {:on-click (fn []
                             (load-piece! state crp pc))}
                "Load Piece"]]
-             
+                          
              ;; second row: selecting a schema
              
-             [:label.pure-u-1.pure-u-md-1-4
-              "Schema"
-              [:select.pure-u-1.pure-u-md-23-24
-               {:value scm
-                :on-change #(reset! schema (.. % -target -value))}
-               (doall (for [s schemas]
-                        [:option
-                         {:key s :value s}
-                         s]))]]
-             
-             [:div.pure-u-1.pure-u-md-1-2
-              [:div.load-padder]
-              "Current Schema: "
-              (:schema st)]
-             
-             [:div.pure-u-1.pure-u-md-1-4
-              [:div.load-padder]
-              [:a.pure-u-1.pure-button.button-primary
-               {:on-click (fn []
-                            (swap! state assoc :schema @schema))}
-               "Set Schema"]]
-
+             [:form.pure-form.pure-form-stacked.pure-u-1.pure-u-md-1-2
+              [:label.pure-u-1.pure-u-md-1-2
+               "Schema"
+               [:select.pure-u-1.pure-u-md-23-24
+                {:value scm
+                 :on-change #(reset! schema (.. % -target -value))}
+                (doall (for [s schemas]
+                         [:option
+                          {:key s :value s}
+                          s]))]]
+              
+              [:label.pure-u-1.pure-u-md-1-2
+               [:div.form-text
+                "Current Schema: "
+                (:schema st)]]
+              
+              [:div.pure-u-1.pure-u-md-1-2
+               [:a.pure-button.button-primary
+                {:on-click (fn []
+                             (swap! state assoc :schema @schema))}
+                "Set Schema"]]]
+            
              ;; third row: loading instances
              
-             (let [c (:corpus st)
+             [:form.pure-form.pure-u-1
+              [:legend "Existing Instances"]
+              
+              ;; 3.1: precomputed suggestions
+              (let [c (:corpus st)
                     s (:schema st)
                     p (:piece st)
                     in (some #{s} (get-in st [:suggested c]))
                     disabled (not (and p c s in))
                     open (= @load-open :suggestions)]
-               [:div.pure-u-1.pure-u-md-1-4
-                [:a.pure-u-1.pure-u-md-23-24.pure-button.button-primary
-                 {:disabled disabled
-                  :class (if open "pure-button-active" "")
-                  :on-click #(swap! load-open (fn [lo] (if open nil :suggestions)))}
-                 "Load Suggestions"]
-                (when (and (not disabled) open)
-                  [:div.pure-u-1.pure-u-md-23-24.pure-group
-                   [:a.pure-button.pure-u-1
-                    {:on-click (fn []
-                                 (load-suggestions! state true)
-                                 (reset! load-open nil))}
-                    "Replace Other Instances"]
-                   [:a.pure-button.pure-u-1
-                    {:on-click (fn []
-                                 (load-suggestions! state false)
-                                 (reset! load-open nil))}
-                    "Add To Instances"]
-                   [:a.pure-button.pure-u-1
-                    {:on-click #(reset! load-open nil)}
-                    "Cancel"]]
-                  )
-                ])
-             ]
-            
-            ;; [:p "corpus: " crp]
-            ;; [:p "piece: " pc]
-            ;; [:p "schema: " scm]
+                [:div.pure-u-1.pure-u-md-1-4
+                 [:a.pure-u-1.pure-u-md-23-24.pure-button.button-primary
+                  {:disabled disabled
+                   :class (if open "pure-button-active" "")
+                   :on-click #(swap! load-open (fn [lo] (if open nil :suggestions)))}
+                  "Load Suggestions"]
+                 (when (and (not disabled) open)
+                   [:div.pure-u-1.pure-u-md-23-24.pure-group
+                    [:a.pure-button.pure-u-1
+                     {:on-click (fn []
+                                  (load-suggestions! state true)
+                                  (reset! load-open nil))}
+                     "Replace Other Instances"]
+                    [:a.pure-button.pure-u-1
+                     {:on-click (fn []
+                                  (load-suggestions! state false)
+                                  (reset! load-open nil))}
+                     "Add To Instances"]
+                    [:a.pure-button.pure-u-1
+                     {:on-click #(reset! load-open nil)}
+                     "Cancel"]])])
+
+              ;; 3.2 annotations from github
+              (let [c (:corpus st)
+                    s (:schema st)
+                    p (:piece st)
+                    in (some #{c} (get-in st [:annotated c s]))
+                    disabled (not (and p c s)) ;; TODO: check if annotation actually exists
+                    open (= @load-open :annot-gh)]
+                [:div.pure-u-1.pure-u-md-1-4
+                 [:a.pure-u-1.pure-u-md-23-24.pure-button.button-primary
+                  {:disabled disabled
+                   :class (if open "pure-button-active" "")
+                   :on-click #(swap! load-open (fn [lo] (if open nil :annot-gh)))}
+                  "Load Annotations (GitHub)"]
+                 (when (and (not disabled) open)
+                   [:div.pure-u-1.pure-u-md-23-24.pure-group
+                    [:a.pure-button.pure-u-1
+                     {:on-click (fn []
+                                  (load-annotations! state true)
+                                  (reset! load-open nil))}
+                     "Replace Other Instances"]
+                    [:a.pure-button.pure-u-1
+                     {:on-click (fn []
+                                  (load-annotations! state false)
+                                  (reset! load-open nil))}
+                     "Add To Instances"]
+                    [:a.pure-button.pure-u-1
+                     {:on-click #(reset! load-open nil)}
+                     "Cancel"]])])]]
             ])
          
          [:a.hide-show

@@ -29,11 +29,13 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def manual-text (md/component (md/md->hiccup "
-1. Select a score (`musicxml`) and an annotation file (`groups/<schema>`),
-   then click on \"Load Files\".
-1. Select an instance from the list.
-1. For each instance, either select one of the suggested \"automatic\" alternatives,
-   or switch to a \"manual\" instance and edit each stage of the preselected match.
+1. Select a corpus and a piece, then click on \"Load Piece\".
+1. Select a schema variant from the list, then click \"Set Schema\".
+1. (optional) Load precomputed suggestions or existing annotations
+   for the selected schema and piece.
+1. Create a new schema instance or select an existing instance from the list.
+   - For precomputed suggestions, select one of the suggested \"automatic\" alternatives.
+   - For \"manual\" instance, edit each stage by selecting notes directly.
 1. When you are done with an instance, you can mark it as \"checked\".
    This is just a help for you to keep track of your work.
 1. You can delete clearly invalid instances,

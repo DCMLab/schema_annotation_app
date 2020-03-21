@@ -12,6 +12,12 @@
           {(+ i start-index)
            (annotate/new-automatic-instance (js->clj alternatives))})))
 
+(defn parse-instances [json-instances start-index]
+  (into (sorted-map)
+        (for [[i inst] (map-indexed vector json-instances)]
+          {(+ i start-index)
+           (annotate/new-known-manual-instance (js->clj inst))})))
+
 (defn load-suggestions! [state json-string]
   (let [json (.parse js/JSON json-string)
         groups (aget json "groups")

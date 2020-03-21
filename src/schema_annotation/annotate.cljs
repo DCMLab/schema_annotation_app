@@ -16,6 +16,13 @@
    :stages (vec (repeat (count pattern) []))
    :checked false})
 
+(defn new-known-manual-instance [stages]
+  {:auto false
+   :alts nil
+   :alt nil
+   :stages stages
+   :checked false})
+
 (defn new-automatic-instance [alts]
   {:auto true
    :alts alts
