@@ -134,6 +134,7 @@
 (defn annotation-inner [pattern notes piece-xml active-instance instances]
   ;; local state / variables
   (let [active-stage (r/atom nil)
+        quick-notes (r/atom nil) ;; notes that are quickly entered by id's
         jump (r/atom nil)
         jump-candidate (r/atom nil)
         options {}]
@@ -156,11 +157,14 @@
                                      (< as 0) (>= as (count sts))))))
             highlighted (ratom/reaction
                          (let [sts @stages
-                               as @active-stage]
-                           (if (nil? sts)
-                             []
-                             (vec (for [[i stage] (map-indexed vector sts)]
-                                    (if (= i as) [] stage))))))]
+                               as @active-stage
+                               qn @quick-notes]
+                           (if (not (nil? qn))
+                             qn
+                             (if (nil? sts)
+                               []
+                               (vec (for [[i stage] (map-indexed vector sts)]
+                                      (if (= i as) [] stage)))))))]
         
         ;; jump to highlights / selection, but only if they changed!
         (let [to (or (get @stages @active-stage)
@@ -181,6 +185,18 @@
           (let [as @active-stage
                 enabled-class (if (nil? @current-instance) " pure-button-disabled" "")]
             [:div.pure-g
+             ;; quick note selection
+             [:div.pure-form.pure-u-1
+              [:legend "Quick Notes"]
+              [:input
+               {:type "text"
+                :value (h/poly-str @quick-notes)
+                :on-change (fn [ev]
+                             (let [poly (h/parse-poly (-> ev .-target .-value))]
+                               (reset! quick-notes poly)))}]
+              [:a.pure-button
+               {:on-click #(reset! quick-notes nil)}
+               "Clear"]]
              
              ;; instance selection
              [:div.pure-form.pure-u-1.pure-u-lg-2-5

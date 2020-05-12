@@ -30,8 +30,10 @@
     (let [pad-top 50
           container-top (.. dom-node getBoundingClientRect -top)
           container-scroll (.. dom-node -scrollTop)
-          elt-tops (for [j jump]
-                     (.. js/document (getElementById j) getBoundingClientRect -top))
+          elts (filter
+                #(not (nil? %))
+                (for [j jump] (.. js/document (getElementById j))))
+          elt-tops (map #(.. % getBoundingClientRect -top) elts)
           min-elt-top (apply min elt-tops)
           max-elt-top (apply max elt-tops)
           offset (- min-elt-top container-top)

@@ -207,3 +207,18 @@
                "n3" {:pitch "D4" :onset [1] :offset [2]}
                "n4" {:pitch "F4" :onset [1] :offset [2]}}]
     (into {} (for [[k v] notes] [k (update v :pitch spelled/parse-spelled-p)]))))
+
+(defn poly-str
+  "Converts a polygram of note ids into a string representation"
+  [poly]
+  (str/join ";" (map #(str/join "," %) poly)))
+
+(defn parse-poly
+  "Converts a string representation of a polygram as ids into a polygram"
+  [polystr]
+  (let [poly (mapv
+              #(mapv str/trim (str/split % #","))
+              (str/split polystr #";"))]
+    (if (empty? (str/trim polystr))
+      nil
+      poly)))
