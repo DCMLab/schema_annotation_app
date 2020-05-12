@@ -188,13 +188,13 @@
              ;; quick note selection
              [:div.pure-form.pure-u-1
               [:legend "Quick Notes"]
-              [:input
+              [:input.pure-u-1.pure-u-md-4-5
                {:type "text"
                 :value (h/poly-str @quick-notes)
                 :on-change (fn [ev]
                              (let [poly (h/parse-poly (-> ev .-target .-value))]
                                (reset! quick-notes poly)))}]
-              [:a.pure-button
+              [:a.pure-button.pure-u-1.pure-u-md-1-5
                {:on-click #(reset! quick-notes nil)}
                "Clear"]]
              
