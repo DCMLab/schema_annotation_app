@@ -7,7 +7,7 @@
 ;; github IO component
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def gh-token "88bc5d8a160f6e0025f791c98a92c9320907172f")
+(def gh-token "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")
 (def gh-data-url "https://raw.githubusercontent.com/DCMLab/schema_annotation_data/master/data/")
 
 (defn corpora-index [json]
