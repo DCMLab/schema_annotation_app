@@ -1,31 +1,38 @@
-{:deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        org.clojure/clojurescript {:mvn/version "1.10.520"}
-        reagent {:mvn/version "0.8.1"}
+{:deps {org.clojure/clojure {:mvn/version "1.11.1"}
+        org.clojure/clojurescript {:mvn/version "1.11.54"}
+        reagent/reagent {:mvn/version "1.1.1"}
         org.clojars.frozenlock/reagent-keybindings {:mvn/version "1.0.2"}
-        markdown-to-hiccup {:mvn/version "0.6.2"}
-        cljs-ajax {:mvn/version "0.8.0"}}
-
- :paths ["src"]
+        markdown-to-hiccup/markdown-to-hiccup {:mvn/version "0.6.2"}
+        cljs-ajax/cljs-ajax {:mvn/version "0.8.0"}}
+ 
+ :paths ["src" "resources"]
  
  :aliases
  {;; production build
   :prod
-  {:main-opts ["-m cljs.main"
-               "-co prod.cljs.edn"
-               "-c schema-annotation.core"]}
+  {:main-opts ["-m" "cljs.main"
+               "-co" "prod.cljs.edn"
+               "-c" "schema-annotation.core"]}
   
   ;; production build using figwheel-main to compile
   :prod-fig
-  {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}
-   :main-opts ["-m figwheel.main -bo prod"]}
+  {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}
+   :main-opts ["-m" "figwheel.main" "-bo" "prod"]}
+  
+  ;; build with development options
+  :dev
+  {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}
+   :main-opts ["-m" "figwheel.main" "-bo" "dev"]}
   
   ;; development with CIDER (repl started by CIDER)
   :cider
   {:extra-paths ["resources" "target"]
-   :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}}
+   :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}}
   
   ;; development with figwheel-main repl (from command line)
   :fig
   {:extra-paths ["resources" "target"]
-   :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}
-   :main-opts ["-m figwheel.main -b dev -r"]}}}
+   :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}
+   :main-opts ["-m" "figwheel.main"
+               "-b" "dev"
+               "-r"]}}}

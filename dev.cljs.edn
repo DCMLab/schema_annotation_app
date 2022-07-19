@@ -3,7 +3,12 @@
   ;;:open-url false
   }
 {:main schema-annotation.core
- :output-to "target/public/js/main.js"
- ;; :output-dir "resources/public/js/out"
+ :output-to "target/public/cljs-out/dev/main.js"
+ :output-dir "target/public/cljs-out/dev/"
  ;; :asset-path "js/out"
+ ;; :foreign-libs [{:file "resources/public/js/octokit.js"
+ ;;                 :provides ["octokit"]
+ ;;                 :module-type :es6}]
+ :target :bundle
+ :bundle-cmd {:none ["npx" "webpack" "--mode=development" "--entry" "./target/public/cljs-out/dev/main.js" "--output-path" "./target/public/js" "--output-filename" "main.js"]}
  :optimizations :none}

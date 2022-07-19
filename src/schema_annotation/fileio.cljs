@@ -71,6 +71,6 @@
            "Download Annotations"]])
        
        [:a.hide-show
-        {:href "javascript:void(0)"
-         :on-click #(swap! visible not)}
+        {:href "#0"
+         :on-click (h/make-js-link #(swap! visible not))}
         (if @visible "Hide IO" "Show IO")]])))

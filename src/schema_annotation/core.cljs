@@ -1,6 +1,8 @@
 (ns ^:figwheel-hooks schema-annotation.core
   (:require [clojure.set :as set]
             [reagent.core :as r]
+            [reagent.dom :as rdom]
+            ["react-dom/client" :as react-client]
             [schema-annotation.helpers :as h]
             [schema-annotation.verovio :as vrv]
             [schema-annotation.annotate :as annotate]
@@ -25,11 +27,31 @@
                         :loading false
                         }))
 
+(defonce app-root (react-client/createRoot (.getElementById js/document "app")))
+
 ;; manual component
 ;;;;;;;;;;;;;;;;;;;
 
 (def manual-text (md/component (md/md->hiccup "
-1. Select a corpus and a piece, then click on \"Load Piece\".
+This tool helps you to create annotations of schema instances.
+It can load music files as well as existing annotations or precomputed instance suggestions
+from a prepared corpus that is stored on GitHub (like [this one](https://github.com/DCMLab/schema_annotation_data)).
+To use this tool, you need a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+that is used to access the GitHub API, query the corpus repository, and load the files.
+If the repository that you want to use is public, you can generate a token without any scopes
+(providing read-only access to public information).
+If you use a private repository, add the `repo` scope,
+which will add read/write access to private repositories (but this app never writes any data to GitHub directly).
+When using your own dataset, the corpus repository should have a `data` directory
+with the same [directory structure](https://github.com/DCMLab/schema_annotation_data/blob/master/doc/Internal.md#data-files-data)
+as the example repository.
+
+To create annotations, follow these steps:
+
+1. Select a repository (by owner, repo name, and branch) and enter your GH access token (see above).
+   Always use the default branch (usually `master`/`main`).
+   Click on \"Set Repo\" to load the schema lexicon and corpus data from the repository.
+1. Select a (sub)corpus and a piece, then click on \"Load Piece\".
 1. Select a schema variant from the list, then click \"Set Schema\".
 1. (optional) Load precomputed suggestions or existing annotations
    for the selected schema and piece.
@@ -40,7 +62,8 @@
    This is just a help for you to keep track of your work.
 1. You can delete clearly invalid instances,
    and add new instances where no suggestion exists.
-1. When you are happy with your annotations, click on \"Download Annotations\"
+1. When you are happy with your annotations, click on \"Download Annotations\".
+   The resulting JSON file needs to be committed to the repo manually.
 
 Shortcuts:
 - `shift-left`/`-right` for selecting alternative suggestions
@@ -60,8 +83,8 @@ Shortcuts:
           ])
        
        [:a.hide-show
-        {:href "javascript:void(0)"
-         :on-click #(swap! visible not)}
+        {:href "#0"
+         :on-click (h/make-js-link #(swap! visible not))}
         (if @visible "Hide Manual" "Show Manual")]])))
 
 (defn download-comp [state]
@@ -102,11 +125,10 @@ Shortcuts:
        [kb/keyboard-listener]])))
 
 (defn ^:after-load reload []
-  (r/render [schema-annotation-app]
-            (.getElementById js/document "app")))
+  (.render app-root (r/as-element [schema-annotation-app])))
+               
 
 (defn init! []
-  (gh/fetch-gh-data! state)
   (reload))
 
 (init!)

@@ -41,6 +41,17 @@
   </part>
 </score-partwise>")
 
+;; js/html utilities
+;;;;;;;;;;;;;;;;;;;;
+
+(defn make-js-link
+  "Creates an event handler for <a> elements that prevents the href from being followed."
+  [f]
+  (fn [e]
+    (.preventDefault e)
+    (f)
+    false))
+
 ;; input type=file utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

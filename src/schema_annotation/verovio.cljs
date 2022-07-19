@@ -1,5 +1,6 @@
 (ns schema-annotation.verovio
   (:require [reagent.core :as r]
+            [reagent.dom :as rdom]
             [reagent.ratom :as ratom]
             [clojure.string :as str]
             [schema-annotation.helpers :as h]))
@@ -89,7 +90,7 @@
       
       :component-did-update
       (fn [comp]
-        (let [comp-dom (r/dom-node comp)]
+        (let [comp-dom (rdom/dom-node comp)]
           (reset-note-classes! comp-dom)
           (when @allow-select
             (add-select-handlers! comp-dom selected)
