@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - uses: DeLaGuardo/setup-clojure@2.0
+    - uses: DeLaGuardo/setup-clojure@8.0
       with:
         cli: 'latest'
     - name: Compile
