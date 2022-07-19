@@ -48,7 +48,7 @@
   (i- [_ i2] (SInterval. (- dia (:dia i2)) (- chrom (:chrom i2))))
   (i- [i] (SInterval. (- dia) (- chrom)))
   (i* [_ n] (SInterval. (* dia n) (* chrom n)))
-  (abs [i] (if (< (i/direction i) 0) (i/i- i) i))
+  (iabs [i] (if (< (i/direction i) 0) (i/i- i) i))
   (direction [i] (compare i (i/zero i)))
   (zero [i] (SInterval. 0 0))
   (octave [_] (SInterval. 7 12))
@@ -56,7 +56,7 @@
   (ic [_] (make-sic dia chrom))
   
   i/IDiatonic
-  (step? [_] (<= (i/abs dia) 1))
+  (step? [_] (<= (i/iabs dia) 1))
 
   i/IChromatic
   (chromatic-semitone [_] (SInterval. 0 1))
@@ -85,7 +85,7 @@
   Object
   (toString [i]
     (if (< (:dia i) 0)
-      (str "-" (i/abs i))
+      (str "-" (i/iabs i))
       (let [dmod (mod dia 7)
             diff (- chrom (dia->chrom dia))
             qual (if (perfectints dmod)
@@ -110,7 +110,7 @@
   (i- [_ i2] (SIC. (- fifths (:fifths i2))))
   (i- [_] (SIC. (- fifths)))
   (i* [_ n] (SIC. (* fifths n)))
-  (abs [i] i)
+  (iabs [i] i)
   (direction [i]
     (let [d (:dia (i/embed i))]
       (if (= d 0)
@@ -122,7 +122,7 @@
   (ic [i] i)
   
   i/IDiatonic
-  (step? [i] (i/abs (:dia (i/embed i))))
+  (step? [i] (i/iabs (:dia (i/embed i))))
   
   i/IChromatic
   (chromatic-semitone [_] (SIC. 7))

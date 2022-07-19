@@ -1,5 +1,5 @@
 {:deps {org.clojure/clojure {:mvn/version "1.11.1"}
-        org.clojure/clojurescript {:mvn/version "1.11.54"}
+        org.clojure/clojurescript {:mvn/version "1.11.60"}
         reagent/reagent {:mvn/version "1.1.1"}
         org.clojars.frozenlock/reagent-keybindings {:mvn/version "1.0.2"}
         markdown-to-hiccup/markdown-to-hiccup {:mvn/version "0.6.2"}

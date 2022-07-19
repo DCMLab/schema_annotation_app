@@ -7,7 +7,7 @@
   (i+ [i1 i2] "Adds two intervals.")
   (i- [i] [i1 i2] "Negates or substracts intervals.")
   (i* [i n] "Muliplies the interval `i` with the integer `n`.")
-  (abs [i] "Returns the upward directed version of `i`.")
+  (iabs [i] "Returns the upward directed version of `i`.")
   (direction [i] "Returns the direction of `i`: up (`1`), down (`-1`), or undirected (`0`).")
   (zero [i] "Returns the zero interval of the same type as `i`.")
   (octave [i] [i n] "Returns the (upward) octave of the same type as `i`.
