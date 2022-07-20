@@ -4,6 +4,8 @@
  ;; :asset-path "js/out"
  ;;:externs ["resources/public/js/verovio.js"]
  :target :bundle
- :bundle-cmd {:none ["npx" "webpack" "--mode=development" "--entry" "./target/public/js/main.js" "--output-path" "./target/public/js" "--output-filename" "main.js"]}
- :infer-externs true
- :optimizations :advanced}
+ :bundle-cmd {:none ["npx" "webpack" "--mode=production" "--entry" "./target/public/js/out/main.js" "--output-path" "./target/public/js" "--output-filename" "main.js"]}
+ ;;:infer-externs true
+ ;;:closure-defines {cljs.core/*global* "window"}
+ :optimizations :none
+ }
