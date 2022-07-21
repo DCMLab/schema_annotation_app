@@ -20,6 +20,7 @@ jobs:
         npm install
         clojure -M:prod
         cp target/public/js/main.js resources/public/js/main.js
+        cp -r target/public/js/out resources/public/js/out
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
