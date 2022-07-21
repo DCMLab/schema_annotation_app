@@ -100,8 +100,10 @@
 (defn rel-schema
   "Converts `schema` from note to interval representation."
   [schema]
-  (let [ref (get-in schema [0 0 :pitch])]
-    (map-schema #(i/ic (i/p-p (:pitch %) ref)) schema)))
+  (let [ref (first (remove nil? (map #(get-in % [0 :pitch]) schema)))]
+    (if ref
+      (map-schema #(i/ic (i/p-p (:pitch %) ref)) schema)
+      schema)))
 
 (defn mark-implicit [prev-stage stage]
   (if prev-stage
@@ -126,6 +128,8 @@
                     rests (rest schema-stage)
                     restp (rest pattern-stage)]
                 (cond
+                  (empty? schema-stage)
+                  :toofew ;; empty stage would break checks
                   (and (nil? nexts) (nil? nextp)) ;; nothing left?
                   true ;; match!
                   (and (some? nexts) (nil? nextp)) ;; notes left in instance but not in pattern?

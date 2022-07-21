@@ -3,15 +3,15 @@ goog.provide('markdown.tables');
 goog.require('cljs.core');
 goog.require('clojure.string');
 markdown.tables.parse_table_row = (function markdown$tables$parse_table_row(text){
-return cljs.core.map.call(null,(function (p1__2413_SHARP_){
-return cljs.core.identity.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"text","text",-1790561697),p1__2413_SHARP_], null));
-}),cljs.core.map.call(null,clojure.string.trim,(function (p1__2412_SHARP_){
-return clojure.string.split.call(null,p1__2412_SHARP_,/\|/);
-}).call(null,clojure.string.trim.call(null,(function (p1__2411_SHARP_){
-if(cljs.core._EQ_.call(null,cljs.core.first.call(null,p1__2411_SHARP_),"|")){
-return cljs.core.apply.call(null,cljs.core.str,cljs.core.rest.call(null,p1__2411_SHARP_));
+return cljs.core.map.call(null,(function (p1__2414_SHARP_){
+return cljs.core.identity.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"text","text",-1790561697),p1__2414_SHARP_], null));
+}),cljs.core.map.call(null,clojure.string.trim,(function (p1__2413_SHARP_){
+return clojure.string.split.call(null,p1__2413_SHARP_,/\|/);
+}).call(null,clojure.string.trim.call(null,(function (p1__2412_SHARP_){
+if(cljs.core._EQ_.call(null,cljs.core.first.call(null,p1__2412_SHARP_),"|")){
+return cljs.core.apply.call(null,cljs.core.str,cljs.core.rest.call(null,p1__2412_SHARP_));
 } else {
-return p1__2411_SHARP_;
+return p1__2412_SHARP_;
 }
 }).call(null,text)))));
 });

@@ -10,7 +10,7 @@ goog.require('goog.events.EventType');
  */
 clojure.browser.event.IEventType = function(){};
 
-var clojure$browser$event$IEventType$event_types$dyn_3555 = (function (this$){
+var clojure$browser$event$IEventType$event_types$dyn_3556 = (function (this$){
 var x__5393__auto__ = (((this$ == null))?null:this$);
 var m__5394__auto__ = (clojure.browser.event.event_types[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -28,7 +28,7 @@ clojure.browser.event.event_types = (function clojure$browser$event$event_types(
 if((((!((this$ == null)))) && ((!((this$.clojure$browser$event$IEventType$event_types$arity$1 == null)))))){
 return this$.clojure$browser$event$IEventType$event_types$arity$1(this$);
 } else {
-return clojure$browser$event$IEventType$event_types$dyn_3555.call(null,this$);
+return clojure$browser$event$IEventType$event_types$dyn_3556.call(null,this$);
 }
 });
 
@@ -36,10 +36,10 @@ return clojure$browser$event$IEventType$event_types$dyn_3555.call(null,this$);
 
 (goog.events.EventTarget.prototype.clojure$browser$event$IEventType$event_types$arity$1 = (function (this$){
 var this$__$1 = this;
-return cljs.core.into.call(null,cljs.core.PersistentArrayMap.EMPTY,cljs.core.map.call(null,(function (p__3556){
-var vec__3557 = p__3556;
-var k = cljs.core.nth.call(null,vec__3557,(0),null);
-var v = cljs.core.nth.call(null,vec__3557,(1),null);
+return cljs.core.into.call(null,cljs.core.PersistentArrayMap.EMPTY,cljs.core.map.call(null,(function (p__3557){
+var vec__3558 = p__3557;
+var k = cljs.core.nth.call(null,vec__3558,(0),null);
+var v = cljs.core.nth.call(null,vec__3558,(1),null);
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.keyword.call(null,k.toLowerCase()),v], null);
 }),cljs.core.merge.call(null,cljs.core.js__GT_clj.call(null,goog.events.EventType))));
 }));
@@ -48,18 +48,18 @@ if((typeof Element !== 'undefined')){
 
 (Element.prototype.clojure$browser$event$IEventType$event_types$arity$1 = (function (this$){
 var this$__$1 = this;
-return cljs.core.into.call(null,cljs.core.PersistentArrayMap.EMPTY,cljs.core.map.call(null,(function (p__3560){
-var vec__3561 = p__3560;
-var k = cljs.core.nth.call(null,vec__3561,(0),null);
-var v = cljs.core.nth.call(null,vec__3561,(1),null);
+return cljs.core.into.call(null,cljs.core.PersistentArrayMap.EMPTY,cljs.core.map.call(null,(function (p__3561){
+var vec__3562 = p__3561;
+var k = cljs.core.nth.call(null,vec__3562,(0),null);
+var v = cljs.core.nth.call(null,vec__3562,(1),null);
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.keyword.call(null,k.toLowerCase()),v], null);
 }),cljs.core.merge.call(null,cljs.core.js__GT_clj.call(null,goog.events.EventType))));
 }));
 } else {
 }
 clojure.browser.event.listen = (function clojure$browser$event$listen(var_args){
-var G__3565 = arguments.length;
-switch (G__3565) {
+var G__3566 = arguments.length;
+switch (G__3566) {
 case 3:
 return clojure.browser.event.listen.cljs$core$IFn$_invoke$arity$3((arguments[(0)]),(arguments[(1)]),(arguments[(2)]));
 
@@ -85,8 +85,8 @@ return goog.events.listen(src,cljs.core.get.call(null,clojure.browser.event.even
 (clojure.browser.event.listen.cljs$lang$maxFixedArity = 4);
 
 clojure.browser.event.listen_once = (function clojure$browser$event$listen_once(var_args){
-var G__3568 = arguments.length;
-switch (G__3568) {
+var G__3569 = arguments.length;
+switch (G__3569) {
 case 3:
 return clojure.browser.event.listen_once.cljs$core$IFn$_invoke$arity$3((arguments[(0)]),(arguments[(1)]),(arguments[(2)]));
 
@@ -112,8 +112,8 @@ return goog.events.listenOnce(src,cljs.core.get.call(null,clojure.browser.event.
 (clojure.browser.event.listen_once.cljs$lang$maxFixedArity = 4);
 
 clojure.browser.event.unlisten = (function clojure$browser$event$unlisten(var_args){
-var G__3571 = arguments.length;
-switch (G__3571) {
+var G__3572 = arguments.length;
+switch (G__3572) {
 case 3:
 return clojure.browser.event.unlisten.cljs$core$IFn$_invoke$arity$3((arguments[(0)]),(arguments[(1)]),(arguments[(2)]));
 

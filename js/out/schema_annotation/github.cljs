@@ -82,7 +82,6 @@
   (ajax/POST "https://api.github.com/graphql"
              {:handler (fn [result]
                          (let [[corpora pieces suggested] (parse-gh-data result)]
-                           (pr pieces)
                            (swap! state assoc
                                   :corpora corpora
                                   :pieces pieces

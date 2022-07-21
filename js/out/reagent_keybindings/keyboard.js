@@ -5,30 +5,30 @@ goog.require('reagent.core');
 goog.require('goog.events');
 goog.require('clojure.string');
 goog.require('goog.events.EventType');
-reagent_keybindings.keyboard.modifiers = cljs.core.reduce.call(null,(function (m,p__3383){
-var vec__3384 = p__3383;
-var k = cljs.core.nth.call(null,vec__3384,(0),null);
-var v = cljs.core.nth.call(null,vec__3384,(1),null);
+reagent_keybindings.keyboard.modifiers = cljs.core.reduce.call(null,(function (m,p__3384){
+var vec__3385 = p__3384;
+var k = cljs.core.nth.call(null,vec__3385,(0),null);
+var v = cljs.core.nth.call(null,vec__3385,(1),null);
 return cljs.core.assoc.call(null,m,k,v);
-}),new cljs.core.PersistentArrayMap(null, 7, ["shift",(16),"alt",(18),"option",(18),"ctrl",(17),"control",(17),"cmd",(91),"command",(91)], null),(function (){var iter__5523__auto__ = (function reagent_keybindings$keyboard$iter__3387(s__3388){
+}),new cljs.core.PersistentArrayMap(null, 7, ["shift",(16),"alt",(18),"option",(18),"ctrl",(17),"control",(17),"cmd",(91),"command",(91)], null),(function (){var iter__5523__auto__ = (function reagent_keybindings$keyboard$iter__3388(s__3389){
 return (new cljs.core.LazySeq(null,(function (){
-var s__3388__$1 = s__3388;
+var s__3389__$1 = s__3389;
 while(true){
-var temp__5804__auto__ = cljs.core.seq.call(null,s__3388__$1);
+var temp__5804__auto__ = cljs.core.seq.call(null,s__3389__$1);
 if(temp__5804__auto__){
-var s__3388__$2 = temp__5804__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,s__3388__$2)){
-var c__5521__auto__ = cljs.core.chunk_first.call(null,s__3388__$2);
+var s__3389__$2 = temp__5804__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,s__3389__$2)){
+var c__5521__auto__ = cljs.core.chunk_first.call(null,s__3389__$2);
 var size__5522__auto__ = cljs.core.count.call(null,c__5521__auto__);
-var b__3390 = cljs.core.chunk_buffer.call(null,size__5522__auto__);
-if((function (){var i__3389 = (0);
+var b__3391 = cljs.core.chunk_buffer.call(null,size__5522__auto__);
+if((function (){var i__3390 = (0);
 while(true){
-if((i__3389 < size__5522__auto__)){
-var k = cljs.core._nth.call(null,c__5521__auto__,i__3389);
-cljs.core.chunk_append.call(null,b__3390,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [["f",cljs.core.str.cljs$core$IFn$_invoke$arity$1(k)].join(''),((111) + k)], null));
+if((i__3390 < size__5522__auto__)){
+var k = cljs.core._nth.call(null,c__5521__auto__,i__3390);
+cljs.core.chunk_append.call(null,b__3391,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [["f",cljs.core.str.cljs$core$IFn$_invoke$arity$1(k)].join(''),((111) + k)], null));
 
-var G__3391 = (i__3389 + (1));
-i__3389 = G__3391;
+var G__3392 = (i__3390 + (1));
+i__3390 = G__3392;
 continue;
 } else {
 return true;
@@ -36,13 +36,13 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3390),reagent_keybindings$keyboard$iter__3387.call(null,cljs.core.chunk_rest.call(null,s__3388__$2)));
+return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3391),reagent_keybindings$keyboard$iter__3388.call(null,cljs.core.chunk_rest.call(null,s__3389__$2)));
 } else {
-return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3390),null);
+return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3391),null);
 }
 } else {
-var k = cljs.core.first.call(null,s__3388__$2);
-return cljs.core.cons.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [["f",cljs.core.str.cljs$core$IFn$_invoke$arity$1(k)].join(''),((111) + k)], null),reagent_keybindings$keyboard$iter__3387.call(null,cljs.core.rest.call(null,s__3388__$2)));
+var k = cljs.core.first.call(null,s__3389__$2);
+return cljs.core.cons.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [["f",cljs.core.str.cljs$core$IFn$_invoke$arity$1(k)].join(''),((111) + k)], null),reagent_keybindings$keyboard$iter__3388.call(null,cljs.core.rest.call(null,s__3389__$2)));
 }
 } else {
 return null;
@@ -85,30 +85,30 @@ return key.toUpperCase().charCodeAt((0));
  */
 reagent_keybindings.keyboard.string_to_keys_STAR_ = (function reagent_keybindings$keyboard$string_to_keys_STAR_(kb_string){
 var keys = (function (string){
-return cljs.core.map.call(null,(function (p1__3392_SHARP_){
-return clojure.string.replace.call(null,p1__3392_SHARP_,"dash","-");
+return cljs.core.map.call(null,(function (p1__3393_SHARP_){
+return clojure.string.replace.call(null,p1__3393_SHARP_,"dash","-");
 }),string);
 }).call(null,clojure.string.split.call(null,clojure.string.replace.call(null,clojure.string.lower_case.call(null,kb_string),/--| -/,"-dash"),/ |-/));
-return cljs.core.into.call(null,cljs.core.PersistentArrayMap.EMPTY,(function (){var iter__5523__auto__ = (function reagent_keybindings$keyboard$string_to_keys_STAR__$_iter__3393(s__3394){
+return cljs.core.into.call(null,cljs.core.PersistentArrayMap.EMPTY,(function (){var iter__5523__auto__ = (function reagent_keybindings$keyboard$string_to_keys_STAR__$_iter__3394(s__3395){
 return (new cljs.core.LazySeq(null,(function (){
-var s__3394__$1 = s__3394;
+var s__3395__$1 = s__3395;
 while(true){
-var temp__5804__auto__ = cljs.core.seq.call(null,s__3394__$1);
+var temp__5804__auto__ = cljs.core.seq.call(null,s__3395__$1);
 if(temp__5804__auto__){
-var s__3394__$2 = temp__5804__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,s__3394__$2)){
-var c__5521__auto__ = cljs.core.chunk_first.call(null,s__3394__$2);
+var s__3395__$2 = temp__5804__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,s__3395__$2)){
+var c__5521__auto__ = cljs.core.chunk_first.call(null,s__3395__$2);
 var size__5522__auto__ = cljs.core.count.call(null,c__5521__auto__);
-var b__3396 = cljs.core.chunk_buffer.call(null,size__5522__auto__);
-if((function (){var i__3395 = (0);
+var b__3397 = cljs.core.chunk_buffer.call(null,size__5522__auto__);
+if((function (){var i__3396 = (0);
 while(true){
-if((i__3395 < size__5522__auto__)){
-var k = cljs.core._nth.call(null,c__5521__auto__,i__3395);
-cljs.core.chunk_append.call(null,b__3396,((cljs.core._EQ_.call(null,(16),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"shift","shift",997140064),true], null):((cljs.core._EQ_.call(null,(17),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"ctrl","ctrl",361402094),true], null):((cljs.core._EQ_.call(null,(18),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"alt","alt",-3214426),true], null):new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"keycode","keycode",-47989070),k], null)
+if((i__3396 < size__5522__auto__)){
+var k = cljs.core._nth.call(null,c__5521__auto__,i__3396);
+cljs.core.chunk_append.call(null,b__3397,((cljs.core._EQ_.call(null,(16),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"shift","shift",997140064),true], null):((cljs.core._EQ_.call(null,(17),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"ctrl","ctrl",361402094),true], null):((cljs.core._EQ_.call(null,(18),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"alt","alt",-3214426),true], null):new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"keycode","keycode",-47989070),k], null)
 ))));
 
-var G__3397 = (i__3395 + (1));
-i__3395 = G__3397;
+var G__3398 = (i__3396 + (1));
+i__3396 = G__3398;
 continue;
 } else {
 return true;
@@ -116,14 +116,14 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3396),reagent_keybindings$keyboard$string_to_keys_STAR__$_iter__3393.call(null,cljs.core.chunk_rest.call(null,s__3394__$2)));
+return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3397),reagent_keybindings$keyboard$string_to_keys_STAR__$_iter__3394.call(null,cljs.core.chunk_rest.call(null,s__3395__$2)));
 } else {
-return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3396),null);
+return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3397),null);
 }
 } else {
-var k = cljs.core.first.call(null,s__3394__$2);
+var k = cljs.core.first.call(null,s__3395__$2);
 return cljs.core.cons.call(null,((cljs.core._EQ_.call(null,(16),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"shift","shift",997140064),true], null):((cljs.core._EQ_.call(null,(17),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"ctrl","ctrl",361402094),true], null):((cljs.core._EQ_.call(null,(18),k))?new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"alt","alt",-3214426),true], null):new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"keycode","keycode",-47989070),k], null)
-))),reagent_keybindings$keyboard$string_to_keys_STAR__$_iter__3393.call(null,cljs.core.rest.call(null,s__3394__$2)));
+))),reagent_keybindings$keyboard$string_to_keys_STAR__$_iter__3394.call(null,cljs.core.rest.call(null,s__3395__$2)));
 }
 } else {
 return null;
@@ -167,28 +167,28 @@ reagent_keybindings.keyboard.registered_keys = cljs.core.atom.call(null,cljs.cor
 reagent_keybindings.keyboard.register_keys_BANG_ = (function reagent_keybindings$keyboard$register_keys_BANG_(shortcut_string,id,action_fn){
 var keys_map = reagent_keybindings.keyboard.string_to_keys.call(null,shortcut_string);
 return cljs.core.swap_BANG_.call(null,reagent_keybindings.keyboard.registered_keys,cljs.core.update_in,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [keys_map], null),(function (action_coll){
-if(cljs.core.truth_(cljs.core.some.call(null,(function (p1__3398_SHARP_){
-return cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(p1__3398_SHARP_),id);
+if(cljs.core.truth_(cljs.core.some.call(null,(function (p1__3399_SHARP_){
+return cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(p1__3399_SHARP_),id);
 }),action_coll))){
-return cljs.core.vec.call(null,(function (){var iter__5523__auto__ = (function reagent_keybindings$keyboard$register_keys_BANG__$_iter__3399(s__3400){
+return cljs.core.vec.call(null,(function (){var iter__5523__auto__ = (function reagent_keybindings$keyboard$register_keys_BANG__$_iter__3400(s__3401){
 return (new cljs.core.LazySeq(null,(function (){
-var s__3400__$1 = s__3400;
+var s__3401__$1 = s__3401;
 while(true){
-var temp__5804__auto__ = cljs.core.seq.call(null,s__3400__$1);
+var temp__5804__auto__ = cljs.core.seq.call(null,s__3401__$1);
 if(temp__5804__auto__){
-var s__3400__$2 = temp__5804__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,s__3400__$2)){
-var c__5521__auto__ = cljs.core.chunk_first.call(null,s__3400__$2);
+var s__3401__$2 = temp__5804__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,s__3401__$2)){
+var c__5521__auto__ = cljs.core.chunk_first.call(null,s__3401__$2);
 var size__5522__auto__ = cljs.core.count.call(null,c__5521__auto__);
-var b__3402 = cljs.core.chunk_buffer.call(null,size__5522__auto__);
-if((function (){var i__3401 = (0);
+var b__3403 = cljs.core.chunk_buffer.call(null,size__5522__auto__);
+if((function (){var i__3402 = (0);
 while(true){
-if((i__3401 < size__5522__auto__)){
-var entry = cljs.core._nth.call(null,c__5521__auto__,i__3401);
-cljs.core.chunk_append.call(null,b__3402,((cljs.core._EQ_.call(null,id,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(entry)))?cljs.core.assoc.call(null,entry,new cljs.core.Keyword(null,"action-fn","action-fn",1914929011),action_fn):entry));
+if((i__3402 < size__5522__auto__)){
+var entry = cljs.core._nth.call(null,c__5521__auto__,i__3402);
+cljs.core.chunk_append.call(null,b__3403,((cljs.core._EQ_.call(null,id,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(entry)))?cljs.core.assoc.call(null,entry,new cljs.core.Keyword(null,"action-fn","action-fn",1914929011),action_fn):entry));
 
-var G__3403 = (i__3401 + (1));
-i__3401 = G__3403;
+var G__3404 = (i__3402 + (1));
+i__3402 = G__3404;
 continue;
 } else {
 return true;
@@ -196,13 +196,13 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3402),reagent_keybindings$keyboard$register_keys_BANG__$_iter__3399.call(null,cljs.core.chunk_rest.call(null,s__3400__$2)));
+return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3403),reagent_keybindings$keyboard$register_keys_BANG__$_iter__3400.call(null,cljs.core.chunk_rest.call(null,s__3401__$2)));
 } else {
-return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3402),null);
+return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__3403),null);
 }
 } else {
-var entry = cljs.core.first.call(null,s__3400__$2);
-return cljs.core.cons.call(null,((cljs.core._EQ_.call(null,id,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(entry)))?cljs.core.assoc.call(null,entry,new cljs.core.Keyword(null,"action-fn","action-fn",1914929011),action_fn):entry),reagent_keybindings$keyboard$register_keys_BANG__$_iter__3399.call(null,cljs.core.rest.call(null,s__3400__$2)));
+var entry = cljs.core.first.call(null,s__3401__$2);
+return cljs.core.cons.call(null,((cljs.core._EQ_.call(null,id,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(entry)))?cljs.core.assoc.call(null,entry,new cljs.core.Keyword(null,"action-fn","action-fn",1914929011),action_fn):entry),reagent_keybindings$keyboard$register_keys_BANG__$_iter__3400.call(null,cljs.core.rest.call(null,s__3401__$2)));
 }
 } else {
 return null;
@@ -227,8 +227,8 @@ return cljs.core.PersistentVector.EMPTY;
 reagent_keybindings.keyboard.deregister_keys_BANG_ = (function reagent_keybindings$keyboard$deregister_keys_BANG_(shortcut_string,id){
 var keys_map = reagent_keybindings.keyboard.string_to_keys.call(null,shortcut_string);
 return cljs.core.swap_BANG_.call(null,reagent_keybindings.keyboard.registered_keys,cljs.core.update_in,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [keys_map], null),(function (action_coll){
-return cljs.core.vec.call(null,cljs.core.remove.call(null,(function (p1__3404_SHARP_){
-return cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(p1__3404_SHARP_),id);
+return cljs.core.vec.call(null,cljs.core.remove.call(null,(function (p1__3405_SHARP_){
+return cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(p1__3405_SHARP_),id);
 }),action_coll));
 }));
 });
@@ -260,10 +260,10 @@ var new_state = cljs.core.assoc.call(null,mods,new cljs.core.Keyword(null,"keyco
 var pressed_keys = cljs.core.into.call(null,cljs.core.PersistentArrayMap.EMPTY,cljs.core.filter.call(null,cljs.core.second,new_state));
 cljs.core.reset_BANG_.call(null,reagent_keybindings.keyboard.keyboard_state,new_state);
 
-var temp__5804__auto___3405 = reagent_keybindings.keyboard.get_keys_action.call(null,pressed_keys);
-if(cljs.core.truth_(temp__5804__auto___3405)){
-var action_3406 = temp__5804__auto___3405;
-action_3406.call(null,evt);
+var temp__5804__auto___3406 = reagent_keybindings.keyboard.get_keys_action.call(null,pressed_keys);
+if(cljs.core.truth_(temp__5804__auto___3406)){
+var action_3407 = temp__5804__auto___3406;
+action_3407.call(null,evt);
 
 evt.preventDefault();
 } else {
@@ -277,15 +277,15 @@ return null;
 });
 reagent_keybindings.keyboard.mouse_up_BANG_ = (function reagent_keybindings$keyboard$mouse_up_BANG_(evt){
 var button = evt.button;
-var keycode = (function (){var pred__3407 = cljs.core._EQ_;
-var expr__3408 = button;
-if(cljs.core.truth_(pred__3407.call(null,(0),expr__3408))){
+var keycode = (function (){var pred__3408 = cljs.core._EQ_;
+var expr__3409 = button;
+if(cljs.core.truth_(pred__3408.call(null,(0),expr__3409))){
 return new cljs.core.Keyword(null,"m0","m0",-1497854839);
 } else {
-if(cljs.core.truth_(pred__3407.call(null,(1),expr__3408))){
+if(cljs.core.truth_(pred__3408.call(null,(1),expr__3409))){
 return new cljs.core.Keyword(null,"m1","m1",-108094626);
 } else {
-if(cljs.core.truth_(pred__3407.call(null,(2),expr__3408))){
+if(cljs.core.truth_(pred__3408.call(null,(2),expr__3409))){
 return new cljs.core.Keyword(null,"m2","m2",-587003306);
 } else {
 return null;
@@ -358,11 +358,11 @@ reagent_keybindings.keyboard.kb_action = (function reagent_keybindings$keyboard$
 var id = cljs.core.gensym.call(null,"kb-");
 return reagent.core.create_class.call(null,new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"component-did-mount","component-did-mount",-1126910518),(function (_){
 return reagent_keybindings.keyboard.register_keys_BANG_.call(null,shortcut_string,id,kb_fn);
-}),new cljs.core.Keyword(null,"component-did-update","component-did-update",-1468549173),(function (_,p__3410){
-var vec__3411 = p__3410;
-var ___$1 = cljs.core.nth.call(null,vec__3411,(0),null);
-var ___$2 = cljs.core.nth.call(null,vec__3411,(1),null);
-var new_kb_fn = cljs.core.nth.call(null,vec__3411,(2),null);
+}),new cljs.core.Keyword(null,"component-did-update","component-did-update",-1468549173),(function (_,p__3411){
+var vec__3412 = p__3411;
+var ___$1 = cljs.core.nth.call(null,vec__3412,(0),null);
+var ___$2 = cljs.core.nth.call(null,vec__3412,(1),null);
+var new_kb_fn = cljs.core.nth.call(null,vec__3412,(2),null);
 if(cljs.core._EQ_.call(null,kb_fn,new_kb_fn)){
 return null;
 } else {
@@ -384,8 +384,8 @@ var id = cljs.core.gensym.call(null,"deactivate-shortcuts-");
 return reagent.core.create_class.call(null,new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"component-did-mount","component-did-mount",-1126910518),(function (_){
 return cljs.core.swap_BANG_.call(null,reagent_keybindings.keyboard.deactivate_shortcuts_comps,cljs.core.conj,id);
 }),new cljs.core.Keyword(null,"component-will-unmount","component-will-unmount",-2058314698),(function (_){
-return cljs.core.swap_BANG_.call(null,reagent_keybindings.keyboard.deactivate_shortcuts_comps,(function (p1__3414_SHARP_){
-return cljs.core.remove.call(null,cljs.core.PersistentHashSet.createAsIfByAssoc([id]),p1__3414_SHARP_);
+return cljs.core.swap_BANG_.call(null,reagent_keybindings.keyboard.deactivate_shortcuts_comps,(function (p1__3415_SHARP_){
+return cljs.core.remove.call(null,cljs.core.PersistentHashSet.createAsIfByAssoc([id]),p1__3415_SHARP_);
 }));
 }),new cljs.core.Keyword(null,"reagent-render","reagent-render",-985383853),(function (_){
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"span","span",1394872991)], null);
