@@ -1,5 +1,16 @@
 # Schema Annotation App
 
+A web app for annotating instances of voice-leading schemata.
+You can try the app [here](https://dcmlab.github.io/schema_annotation_app/).
+Note that you will need a [GitHub access token](https://github.com/settings/tokens)
+so that the app can use the GitHub API.
+
+The app is meant to be used together with a data repository
+that contains scores, a schema lexicon, and potentially existing annotations
+or precomputed suggestions.
+An example of such a repository is our dataset of
+[Mozart Piano Sonatas](https://github.com/DCMLab/schema_annotation_data/).
+
 ## Development
 
 Install the Clojure CLI Tools.
