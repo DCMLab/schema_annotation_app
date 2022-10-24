@@ -252,43 +252,40 @@ return new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"in
 }
 });
 /**
- * Tries to match `schema` to `pattern`.
+ * Tries to match `instance` to `pattern`.
  *   Returns a list of stages which contains for each stage one of the following return values:
  *   `true`, if the stage matches;
  *   `:toofew`, if the stage has too few notes;
  *   `:toomany`, if the stage has too many notes;
  *   `:mismatch`, if the stage does not match the pattern.
  */
-schema_annotation.helpers.match_schema = (function schema_annotation$helpers$match_schema(schema,pattern){
+schema_annotation.helpers.match_schema = (function schema_annotation$helpers$match_schema(instance,pattern){
 var pattern_imp = cljs.core.mapv.call(null,schema_annotation.helpers.mark_implicit,cljs.core.cons.call(null,null,pattern),pattern);
-var find_issues = (function schema_annotation$helpers$match_schema_$_find_issues(schema_stage,pattern_stage){
-var nexts = cljs.core.first.call(null,schema_stage);
+var find_issues = (function schema_annotation$helpers$match_schema_$_find_issues(inst_stage,pattern_stage){
+var nexti = cljs.core.first.call(null,inst_stage);
 var nextp = cljs.core.first.call(null,pattern_stage);
-var rests = cljs.core.rest.call(null,schema_stage);
+var resti = cljs.core.rest.call(null,inst_stage);
 var restp = cljs.core.rest.call(null,pattern_stage);
-if(cljs.core.empty_QMARK_.call(null,schema_stage)){
-return new cljs.core.Keyword(null,"toofew","toofew",2039159132);
-} else {
-if((((nexts == null)) && ((nextp == null)))){
+if((((nexti == null)) && ((nextp == null)))){
 return true;
 } else {
-if((((!((nexts == null)))) && ((nextp == null)))){
+if((((!((nexti == null)))) && ((nextp == null)))){
 return new cljs.core.Keyword(null,"toomany","toomany",533996214);
 } else {
 if((!((nextp == null)))){
-var direct_matching = ((cljs.core._EQ_.call(null,nexts,new cljs.core.Keyword(null,"int","int",-1741416922).cljs$core$IFn$_invoke$arity$1(nextp)))?schema_annotation$helpers$match_schema_$_find_issues.call(null,rests,restp):null);
+var direct_matching = ((cljs.core._EQ_.call(null,nexti,new cljs.core.Keyword(null,"int","int",-1741416922).cljs$core$IFn$_invoke$arity$1(nextp)))?schema_annotation$helpers$match_schema_$_find_issues.call(null,resti,restp):null);
 if(cljs.core.truth_(new cljs.core.Keyword(null,"opt","opt",-794706369).cljs$core$IFn$_invoke$arity$1(nextp))){
 if(direct_matching === true){
 return true;
 } else {
-return schema_annotation$helpers$match_schema_$_find_issues.call(null,schema_stage,restp);
+return schema_annotation$helpers$match_schema_$_find_issues.call(null,inst_stage,restp);
 }
 } else {
 var or__5045__auto__ = direct_matching;
 if(cljs.core.truth_(or__5045__auto__)){
 return or__5045__auto__;
 } else {
-if((nexts == null)){
+if((nexti == null)){
 return new cljs.core.Keyword(null,"toofew","toofew",2039159132);
 } else {
 return new cljs.core.Keyword(null,"mismatch","mismatch",103313617);
@@ -300,9 +297,14 @@ return null;
 }
 }
 }
-}
 });
-return cljs.core.map.call(null,find_issues,schema,pattern_imp);
+return cljs.core.map.call(null,(function (inst_stage,pattern_stage){
+if(cljs.core.empty_QMARK_.call(null,inst_stage)){
+return new cljs.core.Keyword(null,"toofew","toofew",2039159132);
+} else {
+return find_issues.call(null,inst_stage,pattern_stage);
+}
+}),instance,pattern_imp);
 });
 /**
  * Returns a string describing the results of matching a schema to a pattern per stage.

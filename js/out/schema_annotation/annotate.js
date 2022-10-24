@@ -61,14 +61,15 @@ return G__3418;
 })()
 ,cljs.core.PersistentVector.EMPTY);
 });
-schema_annotation.annotate.validate_instance = (function schema_annotation$annotate$validate_instance(pattern,notes,instance){
+schema_annotation.annotate.validate_instance = (function schema_annotation$annotate$validate_instance(pattern,notelist,instance){
 if(cljs.core.truth_(instance)){
 if(cljs.core.empty_QMARK_.call(null,cljs.core.first.call(null,instance))){
 return "first stage is empty";
 } else {
-var schema = schema_annotation.helpers.lookup_schema.call(null,instance,notes);
-var match_results = schema_annotation.helpers.match_schema.call(null,schema_annotation.helpers.rel_schema.call(null,schema),pattern);
-if(cljs.core.not.call(null,schema)){
+var instance_notes = schema_annotation.helpers.lookup_schema.call(null,instance,notelist);
+var instance_rel = schema_annotation.helpers.rel_schema.call(null,instance_notes);
+var match_results = schema_annotation.helpers.match_schema.call(null,instance_rel,pattern);
+if(cljs.core.not.call(null,instance_notes)){
 return "invalid note selected (e.g. after a tie)";
 } else {
 if(cljs.core.truth_(cljs.core.some.call(null,cljs.core.empty_QMARK_,instance))){
@@ -80,10 +81,10 @@ return "wrong number of stages (internal error)";
 if(cljs.core.not_every_QMARK_.call(null,cljs.core.true_QMARK_,match_results)){
 return schema_annotation.helpers.match_to_error_msg.call(null,match_results);
 } else {
-if(cljs.core.not.call(null,schema_annotation.helpers.stages_separate_QMARK_.call(null,schema))){
+if(cljs.core.not.call(null,schema_annotation.helpers.stages_separate_QMARK_.call(null,instance_notes))){
 return "stages overlap";
 } else {
-if(cljs.core.truth_(schema_annotation.helpers.potential_overlap_QMARK_.call(null,schema))){
+if(cljs.core.truth_(schema_annotation.helpers.potential_overlap_QMARK_.call(null,instance_notes))){
 return "stages potentially overlap (check manually)";
 } else {
 return null;

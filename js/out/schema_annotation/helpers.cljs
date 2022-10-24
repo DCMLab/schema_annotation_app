@@ -112,39 +112,41 @@
     (mapv (fn [note] {:int note :opt false}) stage)))
 
 (defn match-schema
-  "Tries to match `schema` to `pattern`.
+  "Tries to match `instance` to `pattern`.
   Returns a list of stages which contains for each stage one of the following return values:
   `true`, if the stage matches;
   `:toofew`, if the stage has too few notes;
   `:toomany`, if the stage has too many notes;
   `:mismatch`, if the stage does not match the pattern."
-  [schema pattern]
+  [instance pattern]
   ;; find out which notes may be implicit (because present/held over from the previous stage)
   (let [pattern-imp (mapv mark-implicit (cons nil pattern) pattern)]
     ;; try to match using backtracking
-    (letfn [(find-issues [schema-stage pattern-stage]
-              (let [nexts (first schema-stage)
+    (letfn [(find-issues [inst-stage pattern-stage]
+              (let [nexti (first inst-stage)
                     nextp (first pattern-stage)
-                    rests (rest schema-stage)
+                    resti (rest inst-stage)
                     restp (rest pattern-stage)]
                 (cond
-                  (empty? schema-stage)
-                  :toofew ;; empty stage would break checks
-                  (and (nil? nexts) (nil? nextp)) ;; nothing left?
+                  (and (nil? nexti) (nil? nextp)) ;; nothing left?
                   true ;; match!
-                  (and (some? nexts) (nil? nextp)) ;; notes left in instance but not in pattern?
+                  (and (some? nexti) (nil? nextp)) ;; notes left in instance but not in pattern?
                   :toomany ;; too many notes in instance
                   (some? nextp) ;; notes left in pattern?
-                  (let [direct-matching (when (= nexts (:int nextp))
-                                          (find-issues rests restp))]
+                  (let [direct-matching (when (= nexti (:int nextp))
+                                          (find-issues resti restp))]
                     (if (:opt nextp) ;; -> pattern note optional?
                       ;; opt? either match directly or skip
                       (if (true? direct-matching)
                         true
-                        (find-issues schema-stage restp))
+                        (find-issues inst-stage restp))
                        ;; not opt? must match directly
-                      (or direct-matching (if (nil? nexts) :toofew :mismatch)))))))]
-      (map find-issues schema pattern-imp))))
+                      (or direct-matching (if (nil? nexti) :toofew :mismatch)))))))]
+      (map (fn [inst-stage pattern-stage]
+             (if (empty? inst-stage)
+               :toofew ;; empty stage would break the check
+               (find-issues inst-stage pattern-stage)))
+           instance pattern-imp))))
 
 (defn match-to-error-msg
   "Returns a string describing the results of matching a schema to a pattern per stage."
